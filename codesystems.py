@@ -19,7 +19,9 @@ class CodeSystems:
 
   # Returns abbreviation for existing codesystem or new one
   def get(self, codesystem: str) -> str:
-    if 'standardhealthrecord' in codesystem:
+    if codesystem is None:
+      return ''
+    elif 'standardhealthrecord' in codesystem:
       return ''
     elif codesystem in self.codesystems:
       return self.codesystems[codesystem]

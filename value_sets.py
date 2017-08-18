@@ -1,8 +1,5 @@
 from codesystems import CodeSystems
 
-# Used for formatting, display length of valueset name
-LENGTH = 40
-
 
 # Formats version based on major, minor, and patch values
 def get_version(version_dict):
@@ -34,12 +31,12 @@ class Value:
   def handle_from_code_rule(self, value: dict) -> None:
     self.parse_code_dict(value.get('code', {}))
     text = 'Includes codes from {0}#{1} "{3}"'
-    self.display_text = text.format(self.abbrev, self.code, LENGTH, self.label)
+    self.display_text = text.format(self.abbrev, self.code, 40, self.label)
 
   # Handles code type ValueSetIncludesCodeRule
   def handle_code_rule(self, value: dict) -> None:
     self.parse_code_dict(value.get('code', {}))
-    length = LENGTH - len(self.abbrev) - 1
+    length = 40 - len(self.abbrev) - 1
     text = '{0}#{1:<{2}}"{3}"'
     self.display_text = text.format(self.abbrev, self.code, length, self.label)
 
@@ -161,7 +158,8 @@ class ValueSetNamespace:
     header = self.build_header()
     code_systems = self.build_codesystems()
     value_sets = '\n\n'.join(self.value_sets)
-    return '\n\n'.join([header, code_systems, value_sets])
+    output = [header, code_systems, value_sets]
+    return '\n\n'.join(filter(None, output))
 
 
 # Manages all namespace valuesets
@@ -171,16 +169,15 @@ class ValueSets:
     self.value_sets = dict()
     self.parse_children(value_sets.get('children', []))
     for i in self.value_sets:
-      with open('./out/%s.txt' % i, 'w') as outfile:
+      name = i.replace('.', '_')
+      with open('./out/%s_vs.txt' % name, 'w') as outfile:
         outfile.write(str(self.value_sets[i]))
 
-  def parse_children(self, children):
+  # Parses children and joins children with the same namespace
+  def parse_children(self, children: list) -> None:
     for child in children:
       vs = ValueSet(child)
       if vs.namespace in self.value_sets:
         self.value_sets[vs.namespace].add(vs)
       else:
         self.value_sets[vs.namespace] = ValueSetNamespace(vs)
-
-  def __str__(self):
-    return 'Namespace' + ' ' + str(len(self.value_sets))

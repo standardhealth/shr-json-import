@@ -1,3 +1,8 @@
+from collections import defaultdict
+
+from codesystems import CodeSystems
+
+
 # Formats version based on major, minor, and patch values
 def get_version(version_dict):
   major = version_dict.get('major', 0)
@@ -6,18 +11,163 @@ def get_version(version_dict):
   return '{}.{}.{}'.format(major, minor, patch)
 
 
-def get_concept(concept_dict):
-  pass
+# Parse Constraint for data elements and values
+def get_constraint(constraints: list, label: str) -> str:
+  if not constraints:
+    return ''
+  c_type = constraints[0].get('type')
+  if c_type == 'ValueSetConstraint':
+    binding = constraints[0].get('bindingStrength', '')
+    ext = ' if covered' if binding == 'EXTENSIBLE' else ''
+    valueset = constraints[0].get('valueset')
+    if 'http://standardhealthrecord.org/shr/assessment/vs/' in valueset:
+      valueset = valueset.rpartition('/')[2]
+    return '{0} from {1}{2}'.format(label, valueset, ext)
+  elif c_type == 'CodeConstraint':
+    code = constraints[0].get('code')
+    system = code.get('system')
+    abbrev = CodeSystems.get(system)
+    source = '{0}#{1}'.format(abbrev, code.get('code'))
+    return '{0} is {1}'.format(label, source)
+  elif c_type == 'BooleanConstraint':
+    value = str(constraints[0].get('value')).lower()
+    return '{0} is {1}'.format(label, value)
+  elif c_type == 'IncludesCodeConstraint':
+    includes = []
+    for i in constraints:
+      code = i.get('code')
+      system = code.get('system')
+      abbrev = CodeSystems.get(system)
+      source = '{0}#{1}'.format(abbrev, code.get('code'))
+      includes.append(source)
+    return '{0} includes {1}'.format(label, ' includes '.join(includes))
+  elif c_type == 'TypeConstraint':
+    return 'TEMP'
+  else:
+    print(c_type, 'MISSING')
+    return 'NONE'
+
+
+class IdentifiableValue:
+
+  def __init__(self, value: dict):
+    self.no_range = 'min' not in value and 'max' not in value
+    self.min = str(value.get('min', 0))
+    self.max = str(value.get('max', '*'))
+    identifier = value.get('identifier', {})
+    self.label = identifier.get('label', '')
+    self.namespace = identifier.get('namespace', '')
+    self.constraint = get_constraint(value.get('constraints', []), self.label)
+
+  def __str__(self):
+    if self.constraint:
+      if self.no_range:
+        return self.constraint.rjust(len(self.constraint) + 30)
+      else:
+        range_vals = '{0}..{1}'.format(self.min, self.max)
+        return '{0:20}{1}'.format(range_vals, self.constraint)
+    else:
+      range_vals = '{0}..{1}'.format(self.min, self.max)
+      return '{0:20}{1}'.format(range_vals, self.label)
 
 
 class DataElement:
 
-  def __init__(self, data_element):
+  def __init__(self, data_element: dict, namespace: str):
+    self.is_defined = False
+    self.namespace = namespace
     self.label = data_element.get('label', '')
-    self.concepts = data_element.get('concepts', [])
+    self.codesystems = dict()
+    self.concepts = self.build_concepts(data_element.get('concepts', []))
     self.based_on = data_element.get('basedOn', [])
     self.description = data_element.get('description', '')
+    self.is_entry = data_element.get('isEntry', False)
+    self.is_abstract = data_element.get('isAbstract', False)
+    self.value = data_element.get('value', {})
     self.children = data_element.get('children', [])
+    self.properties = []
+    self.definitions = []
+    self.uses = set()
+
+  # Parse children for each sub element, pass in all data elements
+  # MUST BE RUN BEFORE STR OF DATA ELEMENT IS USED
+  def parse_children(self, elements: dict) -> None:
+    for child in self.children:
+      if child.get('type') == 'IdentifiableValue':
+        iv = IdentifiableValue(child)
+        self.properties.append(str(iv))
+        if iv.namespace == self.namespace:
+          data_element = elements[iv.label]
+          if not data_element.is_defined:
+            data_element.is_defined = True
+            self.definitions.append(data_element.label)
+        else:
+          self.uses.add(iv.namespace)
+
+  # Build concept list
+  def build_concepts(self, concepts: list) -> list:
+    cs = []
+    for concept in concepts:
+      code = concept.get('code', '')
+      system = concept.get('system', '')
+      abbrev = CodeSystems.get(system)
+      if len(system) and len(abbrev):
+        self.codesystems[system] = abbrev
+      cs.append('{0}#{1}'.format(abbrev, code))
+    return '{0:20}{1}'.format('Concept:', ', '.join(cs) if cs else 'TBD')
+
+  # Builds the children of a data element
+  def build_definitions(self, elements: dict) -> str:
+    all_definitions = []
+    for label in self.definitions:
+      data_element_str = elements[label].to_string(elements)
+      lines = data_element_str.split('\n')
+      definition = '\n'.join(l.rjust(len(l) + 10) for l in lines)
+      all_definitions.append(definition)
+    return '\n\n'.join(all_definitions)
+
+  # Builds line for data elements based on others
+  def build_based_on(self) -> str:
+    values = []
+    for i in self.based_on:
+      values.append('{0:20}{1}'.format('Based on:', i.get('label', '')))
+    return '\n'.join(values)
+
+  #  Builds value line
+  def build_value(self) -> str:
+    label = self.value.get('identifier', {}).get('label', '')
+    constraint = get_constraint(self.value.get('constraints', []), label)
+    if self.value.get('type') == 'ChoiceValue':
+      vs = self.value.get('value', [])
+      values = []
+      for value in vs:
+        identifier = value.get('identifier', {})
+        label = value.get('identifier', {}).get('label', '')
+        if value.get('type') == 'RefValue':
+          values.append('ref({0})'.format(label))
+        else:
+          values.append(label)
+      return '{0:20}{1}'.format('Value:', ' or '.join(filter(None, values)))
+    elif label and not constraint:
+      return '{0:20}{1}'.format('Value:', label)
+    elif label and constraint:
+      return '{0:20}{1}'.format('Value:', constraint)
+    return ''
+
+  # Converts data element to string
+  def to_string(self, elements: dict) -> str:
+    title_text = 'EntryElement:' if self.is_entry else 'Element:'
+    title = '{0:20}{1}'.format(title_text, self.label)
+    concept = self.concepts
+    based_on = self.build_based_on()
+    description = '{0:20}"{1}"'.format('Description:', self.description)
+    # TODO finish value
+    value = self.build_value()
+    properties = '\n'.join(self.properties)
+    definitions = self.build_definitions(elements)
+    output = [title, based_on, concept, description, value, properties]
+    output_def = (filter(None, ['\n'.join(filter(None, output)), definitions]))
+    return '\n\n'.join(output_def)
 
 
 class Namespace:
@@ -26,13 +176,83 @@ class Namespace:
     self.label = namespace.get('label', '')
     self.description = namespace.get('description', '')
     self.version = get_version(namespace.get('grammarVersion', {}))
+    self.uses = set()
+    self.data_elements = dict()
+    self.child_to_parent = defaultdict(list)
+    self.populate_master_lists(namespace.get('children', []))
+    self.base_elements = self.get_base_elements()
 
-  def format_header(self):
-    grammar = ''
+  #  Builds codesystems by looking through all the elements
+  def build_codesystems(self) -> str:
+    cs_dict = dict()
+    for i in self.data_elements:
+      cs_dict.update(self.data_elements[i].codesystems)
+    output = []
+    for i in cs_dict:
+      output.append('{0:20}{1} = {2}'.format('CodeSystem:', cs_dict[i], i))
+    return '\n'.join(output)
+
+  # Generates the headers for the namespace
+  def build_header(self) -> str:
+    grammar = '{0:20}DataElement {1}'.format('Grammar:', self.version)
+    namespace = '{0:20}{1}'.format('Namespace:', self.label)
+    description = '{0:20}"{1}"'.format('Description:', self.description)
+    uses = '{0:20}{1}'.format('Uses:', ', '.join(self.uses))
+    output = [grammar, namespace, description, uses]
+    return '\n'.join(filter(None, output))
+
+  # Generates the data elements and returns a string
+  def build_body(self) -> str:
+    elems = []
+    for i in self.base_elements:
+      elems.append(self.data_elements[i].to_string(self.data_elements))
+    return '\n\n\n'.join(elems)
+
+  # Identifies all data elements and identifiable values
+  def populate_master_lists(self, children: list, parent: str=None) -> None:
+    for child in children:
+      nested_children = []
+      label = ''
+
+      child_type = child.get('type', '')
+      if child_type == 'DataElement':
+        label = child.get('label', '')
+        self.data_elements[label] = DataElement(child, self.label)
+        nested_children = child.get('children', [])
+
+        # TODO Figure out data elements within children
+        # child_value_type = child.get('value', {}).get('type', '')
+        # cvn = child.get('value', {}).get('identifier', {}).get('namespace', '')
+        # if child_value_type == 'IdentifiableValue' and cvn == self.label:
+        #   print(child.get('value').get('label'))
+        #   self.populate_master_lists([child.get('value', {})], label)
+      elif child_type == 'IdentifiableValue':
+        label = child.get('identifier', {}).get('label', '')
+
+      if label and parent is not None:
+        self.child_to_parent[label].append(parent)
+      if label and nested_children:
+        self.populate_master_lists(nested_children, label)
+
+  # Returns base elements parses children for future use
+  def get_base_elements(self) -> list:
+    base_elems = []
+    for i in self.data_elements:
+      element = self.data_elements[i]
+      if len(self.child_to_parent[element.label]) == 0:
+        # Prevents elements from being defined in other data elements
+        element.is_defined = True
+        base_elems.append(element.label)
+      # Prepares children so they aren't defined in multiple places
+      element.parse_children(self.data_elements)
+      self.uses.update(element.uses)
+    return base_elems
 
   def __str__(self):
-    string = 'Label: {}\nVersion: {}\nDescription: {}'
-    return string.format(self.label, self.version, self.description)
+    header = self.build_header()
+    codesystems = self.build_codesystems()
+    body = self.build_body()
+    return '\n\n'.join(filter(None, [header, codesystems, body]))
 
 
 class Namespaces:
@@ -42,8 +262,23 @@ class Namespaces:
     self.type = namespaces['type']
     # self.version = get_version(namespaces['grammarVersion'])
     self.namespaces = namespaces['children']
+    for name in self.namespaces:
+      try:
+        n = Namespace(name)
+      except Exception as e:
+        print('PARSE', name['label'], e)
+        continue
+      label = n.label.replace('.', '_')
+      try:
+        with open('out/%s.txt' % label, 'w') as outfile:
+          outfile.write(str(n))
+      except Exception as e:
+        print('WRITE', name['label'], e)
+        continue
+      print('Succeeded', label)
 
   def __str__(self):
     header = 'Label: {}\nType: {}'.format(self.label, self.type)
-    body = '\n\n'.join(str(Namespace(name)) for name in self.namespaces)
-    return header + '\n' + body
+    # body = '\n\n'.join(str(Namespace(name)) for name in self.namespaces)
+    # return header + '\n' + body
+    return header
