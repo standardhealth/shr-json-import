@@ -109,7 +109,7 @@ class ValueSet:
       abbrev = CodeSystems.get(system)
       if len(system) and len(abbrev):
         self.codesystems[system] = abbrev
-      cs.append('{0:{3}}{1}#{2}'.format('Concept:', abbrev, code, LENGTH))
+      cs.append('{0:{3}}{1}#{2}'.format('Concept:', abbrev, code, 40))
     return cs
 
   # Build description string
@@ -117,11 +117,11 @@ class ValueSet:
     if len(self.description) == 0:
       return ''
     else:
-      return '{0:{2}}{1}'.format('Description:', self.description, LENGTH)
+      return '{0:{2}}{1}'.format('Description:', self.description, 40)
 
   # Return the string representation of a value set
   def __str__(self):
-    header = '{0:{2}}{1}'.format('ValueSet:', self.label, LENGTH)
+    header = '{0:{2}}{1}'.format('ValueSet:', self.label, 40)
     concepts = '\n'.join(self.concepts)
     description = self.build_description()
     values = '\n'.join(str(c) for c in self.children)
