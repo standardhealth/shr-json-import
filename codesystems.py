@@ -9,6 +9,7 @@ def singleton(cls):
 # Manages codesystem abbreviation and generates new ones if they don't exist
 @singleton
 class CodeSystems:
+  BANNED = ['urn:oid', 'standardhealthrecord', 'http://hl7.org/fhir']
 
   def __init__(self):
     with open('./config/codesystems.json', 'r') as code_file:
@@ -21,7 +22,7 @@ class CodeSystems:
   def get(self, codesystem: str) -> str:
     if codesystem is None:
       return ''
-    elif 'standardhealthrecord' in codesystem:
+    elif any(b in codesystem for b in self.BANNED):
       return ''
     elif codesystem in self.codesystems:
       return self.codesystems[codesystem]

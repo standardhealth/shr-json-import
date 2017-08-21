@@ -19,16 +19,22 @@ def get_constraint(constraints: list, label: str) -> str:
   if c_type == 'ValueSetConstraint':
     binding = constraints[0].get('bindingStrength', '')
     ext = ' if covered' if binding == 'EXTENSIBLE' else ''
+    pre = ' should be' if binding == 'PREFERRED' else ''
     valueset = constraints[0].get('valueset')
     if 'http://standardhealthrecord.org/shr/' in valueset:
       valueset = valueset.rpartition('/')[2]
-    return '{0} from {1}{2}'.format(label, valueset, ext)
+    elif 'urn:tbd' in valueset:
+      valueset = 'TBD "{0}"'.format(valueset.rpartition(':')[2])
+    return '{0}{3} from {1}{2}'.format(label, valueset, ext, pre)
   elif c_type == 'CodeConstraint':
     code = constraints[0].get('code')
     system = code.get('system')
     abbrev = CodeSystems.get(system)
-    source = '{0}#{1}'.format(abbrev, code.get('code'))
-    return '{0} is {1}'.format(label, source)
+    display = code.get('display', '')
+    text = '{0}#{1} "{2}"' if display else '{0}#{1}'
+    source = text.format(abbrev, code.get('code'), display)
+    conj = ' with units ' if label == 'Quantity' else ' is '
+    return '{0}{1}{2}'.format(label, conj, source)
   elif c_type == 'BooleanConstraint':
     value = str(constraints[0].get('value')).lower()
     return '{0} is {1}'.format(label, value)
@@ -38,11 +44,20 @@ def get_constraint(constraints: list, label: str) -> str:
       code = i.get('code')
       system = code.get('system')
       abbrev = CodeSystems.get(system)
-      source = '{0}#{1}'.format(abbrev, code.get('code'))
+      display = code.get('display', '')
+      text = '{0}#{1} "{2}"' if display else '{0}#{1}'
+      source = text.format(abbrev, code.get('code'), display)
       includes.append(source)
     return '{0} includes {1}'.format(label, ' includes '.join(includes))
   elif c_type == 'TypeConstraint':
-    return 'TEMP'
+    types = []
+    for i in constraints:
+      name = i.get('isA', {}).get('_name')
+      types.append('{0} is type {1}'.format(label, name))
+    return ' or '.join(types)
+  # TODO Add functionality to card constraint when done
+  elif c_type == 'CardConstraint':
+    print('ADD CARDCONSTRAINT')
   else:
     print(c_type, 'MISSING')
     return 'NONE'
@@ -154,6 +169,13 @@ class DataElement:
       if c_type == 'IdentifiableValue':
         iv = IdentifiableValue(child)
         self.properties.append(str(iv))
+        if iv.constraint:
+          for c in child.get('constraints', []):
+            if c.get('type', '') == 'TypeConstraint':
+              name = c.get('isA', {}).get('_name', '')
+              namespace = c.get('isA', {}).get('_namespace', '')
+              if name and namespace == self.namespace:
+                self.update_definitions(elements, name)
         if iv.namespace == self.namespace:
           self.update_definitions(elements, iv.label)
         else:
@@ -166,6 +188,9 @@ class DataElement:
         for label in cv.elements[self.namespace]:
           self.update_definitions(elements, label)
         self.properties.append(str(cv))
+      # TODO Update when fixed
+      elif c_type == 'Incomplete':
+        pass
       else:
         print('STATUS', c_type, self.namespace)
 
@@ -198,6 +223,11 @@ class DataElement:
       values.append('{0:20}{1}'.format('Based on:', i.get('label', '')))
     return '\n'.join(values)
 
+  def build_description(self) -> str:
+    if self.description:
+      return '{0:20}"{1}"'.format('Description:', self.description)
+    return ''
+
   #  Builds value line
   def build_value(self, value: dict) -> str:
     label = value.get('identifier', {}).get('label', '')
@@ -210,6 +240,8 @@ class DataElement:
         label = value.get('identifier', {}).get('label', '')
         if value.get('type') == 'RefValue':
           values.append('ref({0})'.format(label))
+        elif value.get('type') == 'TBD':
+          values.append('TBD "{0}"'.format(value.get('text', '')))
         else:
           values.append(label)
       return '{0:20}{1}'.format('Value:', ' or '.join(filter(None, values)))
@@ -217,9 +249,12 @@ class DataElement:
       return '{0:20}{1}'.format('Value:', label)
     elif label and constraint:
       vs = value.get('constraints')[0].get('valueset', '')
-      abbrev = CodeSystems.get(vs)
+      system = value.get('constraints')[0].get('code', {}).get('system', '')
+      abbrev = CodeSystems.get(vs) if vs else CodeSystems.get(system)
       if abbrev and vs:
         self.codesystems[vs] = abbrev
+      elif abbrev and system:
+        self.codesystems[system] = abbrev
       return '{0:20}{1}'.format('Value:', constraint)
     return ''
 
@@ -229,7 +264,7 @@ class DataElement:
     title = '{0:20}{1}'.format(title_text, self.label)
     concept = self.concepts
     based_on = self.build_based_on()
-    description = '{0:20}"{1}"'.format('Description:', self.description)
+    description = self.build_description()
     # TODO finish value
     value = self.value
     properties = '\n'.join(self.properties)
@@ -285,27 +320,33 @@ class Namespace:
       labels = []
 
       child_type = child.get('type', '')
+      constraints = child.get('constraints', [])
       if child_type == 'DataElement':
         label = child.get('label', '')
         self.data_elements[label] = DataElement(child, self.label)
         nested_children = child.get('children', [])
 
         # TODO Figure out data elements within children
+        # LOOK AT ENCOUNTER
         # child_value_type = child.get('value', {}).get('type', '')
         # cvn = child.get('value', {}).get('identifier', {}).get('namespace', '')
         # if child_value_type == 'IdentifiableValue' and cvn == self.label:
         #   print(child.get('value').get('label'))
         #   self.populate_master_lists([child.get('value', {})], label)
       elif child_type == 'IdentifiableValue':
-        label = child.get('identifier', {}).get('label', '')
+        if len(constraints) and constraints[0].get('type') == 'TypeConstraint':
+          for i in constraints:
+            labels.append(i.get('isA', {}).get('_name', ''))
+        else:
+          label = child.get('identifier', {}).get('label', '')
       elif child_type == 'ChoiceValue':
         for c in child.get('value', []):
           labels.append(c.get('identifier', {}).get('label', ''))
 
-      if labels:
-        for label in labels:
+      if labels and parent is not None:
+        for label in (filter(None, labels)):
           self.child_to_parent[label].append(parent)
-      elif label and parent is not None:
+      if label and parent is not None:
         self.child_to_parent[label].append(parent)
 
       if label and nested_children:
