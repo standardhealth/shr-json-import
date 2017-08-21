@@ -20,7 +20,7 @@ def get_constraint(constraints: list, label: str) -> str:
     binding = constraints[0].get('bindingStrength', '')
     ext = ' if covered' if binding == 'EXTENSIBLE' else ''
     valueset = constraints[0].get('valueset')
-    if 'http://standardhealthrecord.org/shr/assessment/vs/' in valueset:
+    if 'http://standardhealthrecord.org/shr/' in valueset:
       valueset = valueset.rpartition('/')[2]
     return '{0} from {1}{2}'.format(label, valueset, ext)
   elif c_type == 'CodeConstraint':
@@ -71,6 +71,56 @@ class IdentifiableValue:
       return '{0:20}{1}'.format(range_vals, self.label)
 
 
+class ChildTBD:
+
+  def __init__(self, value: dict):
+    self.text = value.get('text', '')
+    self.no_range = 'min' not in value and 'max' not in value
+    self.min = str(value.get('min', 0))
+    self.max = str(value.get('max', '*'))
+
+  def __str__(self):
+    if self.no_range:
+      return '{0:20}{1}'.format('', self.text)
+    else:
+      range_vals = '{0}..{1}'.format(self.min, self.max)
+      return '{0:20}TBD "{1}"'.format(range_vals, self.text)
+
+
+class ChoiceValue:
+
+  def __init__(self, value: dict):
+    self.no_range = 'min' not in value and 'max' not in value
+    self.min = str(value.get('min', 0))
+    self.max = str(value.get('max', '*'))
+    self.elements = defaultdict(list)
+    self.values = self.build_values(value.get('value', []))
+
+  def build_values(self, vs: list) -> list:
+    values = []
+    for value in vs:
+      label = value.get('identifier', {}).get('label', '')
+      namespace = value.get('identifier', {}).get('namespace', '')
+      v_type = value.get('type')
+      if v_type == 'RefValue':
+        values.append('ref({0})'.format(label))
+        self.elements[namespace].append(label)
+      elif v_type == 'TBD':
+        values.append('TBD "{0}'.format(value.get('text', '')))
+      else:
+        self.elements[namespace].append(label)
+        values.append(label)
+    return values
+
+  def __str__(self):
+    values = ' or '.join(filter(None, self.values))
+    if self.no_range:
+      return '{0:20}{1}'.format('', values)
+    else:
+      range_vals = '{0}..{1}'.format(self.min, self.max)
+      return '{0:20}{1}'.format(range_vals, values)
+
+
 class DataElement:
 
   def __init__(self, data_element: dict, namespace: str):
@@ -83,26 +133,41 @@ class DataElement:
     self.description = data_element.get('description', '')
     self.is_entry = data_element.get('isEntry', False)
     self.is_abstract = data_element.get('isAbstract', False)
-    self.value = data_element.get('value', {})
+    self.value = self.build_value(data_element.get('value', {}))
     self.children = data_element.get('children', [])
     self.properties = []
     self.definitions = []
     self.uses = set()
 
+  # Update definitions on whether to define a data element
+  def update_definitions(self, elements: dict, label: str) -> None:
+    data_element = elements[label]
+    if not data_element.is_defined:
+      data_element.is_defined = True
+      self.definitions.append(data_element.label)
+
   # Parse children for each sub element, pass in all data elements
   # MUST BE RUN BEFORE STR OF DATA ELEMENT IS USED
   def parse_children(self, elements: dict) -> None:
     for child in self.children:
-      if child.get('type') == 'IdentifiableValue':
+      c_type = child.get('type')
+      if c_type == 'IdentifiableValue':
         iv = IdentifiableValue(child)
         self.properties.append(str(iv))
         if iv.namespace == self.namespace:
-          data_element = elements[iv.label]
-          if not data_element.is_defined:
-            data_element.is_defined = True
-            self.definitions.append(data_element.label)
+          self.update_definitions(elements, iv.label)
         else:
           self.uses.add(iv.namespace)
+      elif c_type == 'TBD':
+        tbd = ChildTBD(child)
+        self.properties.append(str(tbd))
+      elif c_type == 'ChoiceValue':
+        cv = ChoiceValue(child)
+        for label in cv.elements[self.namespace]:
+          self.update_definitions(elements, label)
+        self.properties.append(str(cv))
+      else:
+        print('STATUS', c_type, self.namespace)
 
   # Build concept list
   def build_concepts(self, concepts: list) -> list:
@@ -134,11 +199,11 @@ class DataElement:
     return '\n'.join(values)
 
   #  Builds value line
-  def build_value(self) -> str:
-    label = self.value.get('identifier', {}).get('label', '')
-    constraint = get_constraint(self.value.get('constraints', []), label)
-    if self.value.get('type') == 'ChoiceValue':
-      vs = self.value.get('value', [])
+  def build_value(self, value: dict) -> str:
+    label = value.get('identifier', {}).get('label', '')
+    constraint = get_constraint(value.get('constraints', []), label)
+    if value.get('type') == 'ChoiceValue':
+      vs = value.get('value', [])
       values = []
       for value in vs:
         identifier = value.get('identifier', {})
@@ -151,6 +216,10 @@ class DataElement:
     elif label and not constraint:
       return '{0:20}{1}'.format('Value:', label)
     elif label and constraint:
+      vs = value.get('constraints')[0].get('valueset', '')
+      abbrev = CodeSystems.get(vs)
+      if abbrev and vs:
+        self.codesystems[vs] = abbrev
       return '{0:20}{1}'.format('Value:', constraint)
     return ''
 
@@ -162,7 +231,7 @@ class DataElement:
     based_on = self.build_based_on()
     description = '{0:20}"{1}"'.format('Description:', self.description)
     # TODO finish value
-    value = self.build_value()
+    value = self.value
     properties = '\n'.join(self.properties)
     definitions = self.build_definitions(elements)
     output = [title, based_on, concept, description, value, properties]
@@ -213,6 +282,7 @@ class Namespace:
     for child in children:
       nested_children = []
       label = ''
+      labels = []
 
       child_type = child.get('type', '')
       if child_type == 'DataElement':
@@ -228,9 +298,16 @@ class Namespace:
         #   self.populate_master_lists([child.get('value', {})], label)
       elif child_type == 'IdentifiableValue':
         label = child.get('identifier', {}).get('label', '')
+      elif child_type == 'ChoiceValue':
+        for c in child.get('value', []):
+          labels.append(c.get('identifier', {}).get('label', ''))
 
-      if label and parent is not None:
+      if labels:
+        for label in labels:
+          self.child_to_parent[label].append(parent)
+      elif label and parent is not None:
         self.child_to_parent[label].append(parent)
+
       if label and nested_children:
         self.populate_master_lists(nested_children, label)
 
