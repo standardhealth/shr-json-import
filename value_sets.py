@@ -117,7 +117,7 @@ class ValueSet:
     if len(self.description) == 0:
       return ''
     else:
-      return '{0:{2}}{1}'.format('Description:', self.description, 40)
+      return '{0:{2}}"{1}"'.format('Description:', self.description, 40)
 
   # Return the string representation of a value set
   def __str__(self):
