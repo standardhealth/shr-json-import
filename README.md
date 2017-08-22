@@ -1,7 +1,13 @@
-# shr-json-import
-Python script for exporting JSON into SHR Cameo
+# shr-json-to-cameo
+This python script is used to convert the json models back into Cameo code.
 
-Run with:
+From the terminal, run with:
 ```
-python json2cameo.py sher_spec.json
+python json2cameo.py sample_data/shr_spec.json
+```
+
+From a python script, run with:
+```
+>>> j2c = JsonToCameo(filename='sample_data/shr_spec.json', output='out/')
+>>> j2c.all_files()
 ```
