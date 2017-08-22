@@ -16,8 +16,8 @@ class JsonToCameo:
   def __init__(self, json_data: dict=None, filename: str='',
                output: str='out/'):
     self.error_checking(json_data, filename)
-    os.makedirs(output, exist_ok=True)
-    self.output = output
+    self.output = output if output[-1] == '/' else output + '/'
+    os.makedirs(self.output, exist_ok=True)
     n, v = self.get_data(json_data, filename)
     self.namespaces = Namespaces(n)
     self.value_sets = ValueSets(v)
@@ -75,7 +75,10 @@ class JsonToCameo:
 
 
 def main(args):
-  j2c = JsonToCameo(filename=args[0])
+  if len(args) == 1:
+    j2c = JsonToCameo(filename=args[0])
+  else:
+    j2c = JsonToCameo(filename=args[0], output=args[1])
   j2c.all_files()
 
 
