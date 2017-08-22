@@ -2,8 +2,8 @@ import json
 import os
 import sys
 
-from namespace import Namespaces
-from value_sets import ValueSets
+from scripts.namespace import Namespaces
+from scripts.value_sets import ValueSets
 
 
 def read_json_file(filename):
