@@ -168,10 +168,6 @@ class ValueSets:
   def __init__(self, value_sets: dict):
     self.value_sets = dict()
     self.parse_children(value_sets.get('children', []))
-    for i in self.value_sets:
-      name = i.replace('.', '_')
-      with open('./out/%s_vs.txt' % name, 'w') as outfile:
-        outfile.write(str(self.value_sets[i]))
 
   # Parses children and joins children with the same namespace
   def parse_children(self, children: list) -> None:

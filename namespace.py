@@ -376,27 +376,16 @@ class Namespace:
 class Namespaces:
 
   def __init__(self, namespaces):
-    self.label = namespaces['label']
-    self.type = namespaces['type']
-    # self.version = get_version(namespaces['grammarVersion'])
-    self.namespaces = namespaces['children']
-    for name in self.namespaces:
+    self.label = namespaces.get('label', '')
+    self.type = namespaces.get('type', '')
+    self.namespaces = dict()
+    self.parse_namespaces(namespaces.get('children', []))
+
+  def parse_namespaces(self, namespaces: list) -> list:
+    for name in namespaces:
       try:
         n = Namespace(name)
       except Exception as e:
-        print('PARSE', name['label'], e)
+        print('PARSE_ERROR', name['label'], e)
         continue
-      label = n.label.replace('.', '_')
-      try:
-        with open('out/%s.txt' % label, 'w') as outfile:
-          outfile.write(str(n))
-      except Exception as e:
-        print('WRITE', name['label'], e)
-        continue
-      print('Succeeded', label)
-
-  def __str__(self):
-    header = 'Label: {}\nType: {}'.format(self.label, self.type)
-    # body = '\n\n'.join(str(Namespace(name)) for name in self.namespaces)
-    # return header + '\n' + body
-    return header
+      self.namespaces[n.label] = n
