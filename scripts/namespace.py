@@ -8,7 +8,8 @@ def get_version(version_dict):
   major = version_dict.get('major', 0)
   minor = version_dict.get('minor', 0)
   patch = version_dict.get('patch', 0)
-  return '{}.{}.{}'.format(major, minor, patch)
+  # return '{}.{}.{}'.format(major, minor, patch)
+  return '{}.{}'.format(major, minor)
 
 
 # Parse Constraint for data elements and values
@@ -65,7 +66,8 @@ def get_constraint(constraints: list, label: str) -> str:
 
 class IdentifiableValue:
 
-  def __init__(self, value: dict):
+  def __init__(self, value: dict, is_ref=False):
+    self.is_ref = is_ref
     self.no_range = 'min' not in value and 'max' not in value
     self.min = str(value.get('min', 0))
     self.max = str(value.get('max', '*'))
@@ -75,15 +77,16 @@ class IdentifiableValue:
     self.constraint = get_constraint(value.get('constraints', []), self.label)
 
   def __str__(self):
+    text = '{0:20}ref({1})' if self.is_ref else '{0:20}{1}'
     if self.constraint:
       if self.no_range:
         return self.constraint.rjust(len(self.constraint) + 30)
       else:
         range_vals = '{0}..{1}'.format(self.min, self.max)
-        return '{0:20}{1}'.format(range_vals, self.constraint)
+        return text.format(range_vals, self.constraint)
     else:
       range_vals = '{0}..{1}'.format(self.min, self.max)
-      return '{0:20}{1}'.format(range_vals, self.label)
+      return text.format(range_vals, self.label)
 
 
 class ChildTBD:
@@ -143,6 +146,7 @@ class DataElement:
     self.namespace = namespace
     self.label = data_element.get('label', '')
     self.codesystems = dict()
+    self.uses = set()
     self.concepts = self.build_concepts(data_element.get('concepts', []))
     self.based_on = data_element.get('basedOn', [])
     self.description = data_element.get('description', '')
@@ -152,7 +156,6 @@ class DataElement:
     self.children = data_element.get('children', [])
     self.properties = []
     self.definitions = []
-    self.uses = set()
 
   # Update definitions on whether to define a data element
   def update_definitions(self, elements: dict, label: str) -> None:
@@ -185,14 +188,25 @@ class DataElement:
         self.properties.append(str(tbd))
       elif c_type == 'ChoiceValue':
         cv = ChoiceValue(child)
-        for label in cv.elements[self.namespace]:
-          self.update_definitions(elements, label)
+        for namespace in cv.elements:
+          if namespace == self.namespace:
+            for label in cv.elements[namespace]:
+              self.update_definitions(elements, label)
+          else:
+            self.uses.add(namespace)
         self.properties.append(str(cv))
+      elif c_type == 'RefValue':
+        ivr = IdentifiableValue(child, is_ref=True)
+        self.properties.append(str(ivr))
+        if ivr.namespace == self.namespace:
+          self.update_definitions(elements, ivr.label)
+        else:
+          self.uses.add(ivr.namespace)
       # TODO Update when fixed
       elif c_type == 'Incomplete':
-        pass
+        print('INCOMPLETE', c_type, child.get('label', ''), self.namespace)
       else:
-        print('STATUS', c_type, self.namespace)
+        print('STATUS', c_type, child.get('label'), self.namespace)
 
   # Build concept list
   def build_concepts(self, concepts: list) -> list:
@@ -231,6 +245,9 @@ class DataElement:
   #  Builds value line
   def build_value(self, value: dict) -> str:
     label = value.get('identifier', {}).get('label', '')
+    namespace = value.get('identifier', {}).get('namespace', '')
+    if namespace:
+      self.uses.add(namespace)
     constraint = get_constraint(value.get('constraints', []), label)
     if value.get('type') == 'ChoiceValue':
       vs = value.get('value', [])
@@ -238,6 +255,11 @@ class DataElement:
       for value in vs:
         identifier = value.get('identifier', {})
         label = value.get('identifier', {}).get('label', '')
+        # Find dependencies in the value
+        namespace = identifier.get('namespace', '')
+        if namespace:
+          self.uses.add(namespace)
+        # Get display value for each child
         if value.get('type') == 'RefValue':
           values.append('ref({0})'.format(label))
         elif value.get('type') == 'TBD':

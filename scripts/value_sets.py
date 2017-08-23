@@ -6,7 +6,8 @@ def get_version(version_dict):
   major = version_dict.get('major', 0)
   minor = version_dict.get('minor', 0)
   patch = version_dict.get('patch', 0)
-  return '{}.{}.{}'.format(major, minor, patch)
+  # return '{}.{}.{}'.format(major, minor, patch)
+  return '{}.{}'.format(major, minor)
 
 
 # Manages a single value within a value set

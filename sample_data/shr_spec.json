@@ -153,7 +153,7 @@
             },
             {
               "type": "DataElement",
-              "label": "Anonymized",
+              "label": "AnonymizedFlag",
               "isEntry": false,
               "isAbstract": false,
               "concepts": [
@@ -165,7 +165,7 @@
                   "url": "https://uts.nlm.nih.gov/metathesaurus.html#C3858751;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
                 }
               ],
-              "description": "Flag indicating if personally identifiable information has been withheld.",
+              "description": "Flag indicating if personally identifiable information has been withheld or disguised.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -405,7 +405,7 @@
             },
             {
               "type": "DataElement",
-              "label": "FictionalPerson",
+              "label": "FictionalPersonFlag",
               "isEntry": false,
               "isAbstract": false,
               "concepts": [
@@ -1093,9 +1093,9 @@
                   "max": 1,
                   "constraints": [],
                   "type": "IdentifiableValue",
-                  "label": "shr.actor:Anonymized",
+                  "label": "shr.actor:AnonymizedFlag",
                   "identifier": {
-                    "label": "Anonymized",
+                    "label": "AnonymizedFlag",
                     "type": "Identifier",
                     "namespace": "shr.actor"
                   }
@@ -1105,9 +1105,9 @@
                   "max": 1,
                   "constraints": [],
                   "type": "IdentifiableValue",
-                  "label": "shr.actor:FictionalPerson",
+                  "label": "shr.actor:FictionalPersonFlag",
                   "identifier": {
-                    "label": "FictionalPerson",
+                    "label": "FictionalPersonFlag",
                     "type": "Identifier",
                     "namespace": "shr.actor"
                   }
@@ -5445,8 +5445,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:SpecialDietFollowed",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:SpecialDietFollowed",
                   "identifier": {
                     "label": "SpecialDietFollowed",
                     "type": "Identifier",
@@ -5457,8 +5457,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:HasSufficientFood",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:HasSufficientFood",
                   "identifier": {
                     "label": "HasSufficientFood",
                     "type": "Identifier",
@@ -5468,8 +5468,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:DietNutritionConcern",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:DietNutritionConcern",
                   "identifier": {
                     "label": "DietNutritionConcern",
                     "type": "Identifier",
@@ -5479,8 +5479,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.allergy:FoodAllergy",
+                  "type": "RefValue",
+                  "label": "reference to shr.allergy:FoodAllergy",
                   "identifier": {
                     "label": "FoodAllergy",
                     "type": "Identifier",
@@ -5551,7 +5551,19 @@
               "value": {
                 "min": 1,
                 "max": 1,
-                "constraints": [],
+                "constraints": [
+                  {
+                    "type": "CodeConstraint",
+                    "code": {
+                      "label": "http://unitsofmeasure.org:1",
+                      "type": "Concept",
+                      "system": "http://unitsofmeasure.org",
+                      "code": "1",
+                      "url": "http://unitsofmeasure.org/ucum.html#section-Alphabetic-Index-By-Symbol"
+                    },
+                    "path": "shr.core.Units:shr.core.Coding"
+                  }
+                ],
                 "type": "IdentifiableValue",
                 "label": "shr.core:Quantity",
                 "identifier": {
@@ -6047,8 +6059,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:ExerciseHoursPerWeek",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:ExerciseHoursPerWeek",
                   "identifier": {
                     "label": "ExerciseHoursPerWeek",
                     "type": "Identifier",
@@ -6058,8 +6070,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:PhysicalActivityLimitation",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:PhysicalActivityLimitation",
                   "identifier": {
                     "label": "PhysicalActivityLimitation",
                     "type": "Identifier",
@@ -6275,8 +6287,8 @@
                   "min": 1,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:Religion",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:Religion",
                   "identifier": {
                     "label": "Religion",
                     "type": "Identifier",
@@ -6287,8 +6299,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:ReligiousPracticeStatus",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:ReligiousPracticeStatus",
                   "identifier": {
                     "label": "ReligiousPracticeStatus",
                     "type": "Identifier",
@@ -6298,8 +6310,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:ReligiousRestriction",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:ReligiousRestriction",
                   "identifier": {
                     "label": "ReligiousRestriction",
                     "type": "Identifier",
@@ -6310,8 +6322,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:ReligiousCongregation",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:ReligiousCongregation",
                   "identifier": {
                     "label": "ReligiousCongregation",
                     "type": "Identifier",
@@ -6480,8 +6492,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:TroubleFallingAsleep",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:TroubleFallingAsleep",
                   "identifier": {
                     "label": "TroubleFallingAsleep",
                     "type": "Identifier",
@@ -6492,8 +6504,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:TroubleStayingAsleep",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:TroubleStayingAsleep",
                   "identifier": {
                     "label": "TroubleStayingAsleep",
                     "type": "Identifier",
@@ -6504,8 +6516,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:WakeFeelingRested",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:WakeFeelingRested",
                   "identifier": {
                     "label": "WakeFeelingRested",
                     "type": "Identifier",
@@ -6516,8 +6528,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:HoursSleepPerNight",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:HoursSleepPerNight",
                   "identifier": {
                     "label": "HoursSleepPerNight",
                     "type": "Identifier",
@@ -6527,8 +6539,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.behavior:SleepQualityReason",
+                  "type": "RefValue",
+                  "label": "reference to shr.behavior:SleepQualityReason",
                   "identifier": {
                     "label": "SleepQualityReason",
                     "type": "Identifier",
@@ -8620,22 +8632,24 @@
                 "minor": 0,
                 "patch": 0
               },
-              "basedOn": [
-                {
-                  "label": "Range",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              ],
               "children": [
                 {
                   "min": 0,
                   "max": 1,
-                  "constraints": [],
+                  "constraints": [
+                    {
+                      "type": "TypeConstraint",
+                      "isA": {
+                        "_namespace": "shr.core",
+                        "_name": "Age"
+                      },
+                      "path": ""
+                    }
+                  ],
                   "type": "IdentifiableValue",
-                  "label": "shr.core:LowerBound",
+                  "label": "shr.core:UpperBound",
                   "identifier": {
-                    "label": "LowerBound",
+                    "label": "UpperBound",
                     "type": "Identifier",
                     "namespace": "shr.core"
                   }
@@ -8643,11 +8657,20 @@
                 {
                   "min": 0,
                   "max": 1,
-                  "constraints": [],
+                  "constraints": [
+                    {
+                      "type": "TypeConstraint",
+                      "isA": {
+                        "_namespace": "shr.core",
+                        "_name": "Age"
+                      },
+                      "path": ""
+                    }
+                  ],
                   "type": "IdentifiableValue",
-                  "label": "shr.core:UpperBound",
+                  "label": "shr.core:LowerBound",
                   "identifier": {
-                    "label": "UpperBound",
+                    "label": "LowerBound",
                     "type": "Identifier",
                     "namespace": "shr.core"
                   }
@@ -8972,6 +8995,32 @@
                 "label": "primitive:string",
                 "identifier": {
                   "label": "string",
+                  "type": "Identifier",
+                  "namespace": "primitive"
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "DataElement",
+              "label": "BoundType",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "Indicates the actual value is lt (<) or lte (<=) the given value.",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [],
+                "type": "IdentifiableValue",
+                "label": "primitive:code",
+                "identifier": {
+                  "label": "code",
                   "type": "Identifier",
                   "namespace": "primitive"
                 }
@@ -9676,60 +9725,6 @@
             },
             {
               "type": "DataElement",
-              "label": "DollarAmount",
-              "isEntry": false,
-              "isAbstract": false,
-              "concepts": [
-                {
-                  "label": "http://ncimeta.nci.nih.gov:C0562019",
-                  "type": "Concept",
-                  "system": "http://ncimeta.nci.nih.gov",
-                  "code": "C0562019",
-                  "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0562019;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-                }
-              ],
-              "description": "An amount of money expressed in US dollars.",
-              "grammarVersion": {
-                "major": 5,
-                "minor": 0,
-                "patch": 0
-              },
-              "basedOn": [
-                {
-                  "label": "Quantity",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              ],
-              "children": [
-                {
-                  "min": 1,
-                  "max": 1,
-                  "constraints": [
-                    {
-                      "type": "CodeConstraint",
-                      "code": {
-                        "label": "urn:iso:std:iso:4217:USD",
-                        "type": "Concept",
-                        "system": "urn:iso:std:iso:4217",
-                        "code": "USD",
-                        "url": "https://www.iso.org/iso-4217-currency-codes.html"
-                      },
-                      "path": ""
-                    }
-                  ],
-                  "type": "IdentifiableValue",
-                  "label": "shr.core:Units",
-                  "identifier": {
-                    "label": "Units",
-                    "type": "Identifier",
-                    "namespace": "shr.core"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "DataElement",
               "label": "Duration",
               "isEntry": false,
               "isAbstract": false,
@@ -10404,18 +10399,13 @@
                 "minor": 0,
                 "patch": 0
               },
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [],
-                "type": "IdentifiableValue",
-                "label": "shr.core:Age",
-                "identifier": {
+              "basedOn": [
+                {
                   "label": "Age",
                   "type": "Identifier",
                   "namespace": "shr.core"
                 }
-              },
+              ],
               "children": []
             },
             {
@@ -10756,7 +10746,15 @@
               "label": "Identifier",
               "isEntry": false,
               "isAbstract": false,
-              "concepts": [],
+              "concepts": [
+                {
+                  "label": "http://ncimeta.nci.nih.gov:C0600091",
+                  "type": "Concept",
+                  "system": "http://ncimeta.nci.nih.gov",
+                  "code": "C0600091",
+                  "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0600091;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
+                }
+              ],
               "description": "A unique string that identifies a specific person or thing.",
               "grammarVersion": {
                 "major": 5,
@@ -11039,41 +11037,7 @@
               "isEntry": false,
               "isAbstract": false,
               "concepts": [],
-              "description": "A measured or measurable amount with units that is known to be bounded from below by the quantity represented.",
-              "grammarVersion": {
-                "major": 5,
-                "minor": 0,
-                "patch": 0
-              },
-              "basedOn": [
-                {
-                  "label": "Quantity",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              ],
-              "children": [
-                {
-                  "min": 1,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.core:LowerBoundType",
-                  "identifier": {
-                    "label": "LowerBoundType",
-                    "type": "Identifier",
-                    "namespace": "shr.core"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "DataElement",
-              "label": "LowerBoundType",
-              "isEntry": false,
-              "isAbstract": false,
-              "concepts": [],
-              "description": "Indicates the actual value is gt (>) or gte (>=) the given value.",
+              "description": "The lower limit on a quantitative value",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -11082,23 +11046,36 @@
               "value": {
                 "min": 1,
                 "max": 1,
-                "constraints": [
-                  {
-                    "type": "ValueSetConstraint",
-                    "valueset": "http://standardhealthrecord.org/shr/core/vs/LowerBoundTypeVS",
-                    "bindingStrength": "REQUIRED",
-                    "path": ""
-                  }
-                ],
+                "constraints": [],
                 "type": "IdentifiableValue",
-                "label": "primitive:code",
+                "label": "shr.core:Quantity",
                 "identifier": {
-                  "label": "code",
+                  "label": "Quantity",
                   "type": "Identifier",
-                  "namespace": "primitive"
+                  "namespace": "shr.core"
                 }
               },
-              "children": []
+              "children": [
+                {
+                  "min": 1,
+                  "max": 1,
+                  "constraints": [
+                    {
+                      "type": "ValueSetConstraint",
+                      "valueset": "http://standardhealthrecord.org/shr/core/vs/LowerBoundTypeVS",
+                      "bindingStrength": "REQUIRED",
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:BoundType",
+                  "identifier": {
+                    "label": "BoundType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
+                  }
+                }
+              ]
             },
             {
               "type": "DataElement",
@@ -11531,7 +11508,7 @@
               "isEntry": false,
               "isAbstract": false,
               "concepts": [],
-              "description": "A quantity with units.",
+              "description": "A quantity with units, whose value may be bounded from above or below.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -11570,7 +11547,7 @@
               "isEntry": false,
               "isAbstract": false,
               "concepts": [],
-              "description": "An interval defined by an upper and/or lower bound. One of the two bounds must be specified, and the lower bound must be less than the upper bound.",
+              "description": "An interval defined by a quantitative upper and/or lower bound. One of the two bounds must be specified, and the lower bound must be less than the upper bound.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -12047,7 +12024,7 @@
               },
               "children": [
                 {
-                  "min": 1,
+                  "min": 0,
                   "max": 1,
                   "constraints": [],
                   "type": "IdentifiableValue",
@@ -12329,41 +12306,7 @@
               "isEntry": false,
               "isAbstract": false,
               "concepts": [],
-              "description": "A measured or measurable amount with units that is known to be bounded from above by the quantity represented.",
-              "grammarVersion": {
-                "major": 5,
-                "minor": 0,
-                "patch": 0
-              },
-              "basedOn": [
-                {
-                  "label": "Quantity",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              ],
-              "children": [
-                {
-                  "min": 1,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.core:UpperBoundType",
-                  "identifier": {
-                    "label": "UpperBoundType",
-                    "type": "Identifier",
-                    "namespace": "shr.core"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "DataElement",
-              "label": "UpperBoundType",
-              "isEntry": false,
-              "isAbstract": false,
-              "concepts": [],
-              "description": "Indicates the actual value is lt (<) or lte (<=) the given value.",
+              "description": "The upper limit on a quantitative value.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -12372,23 +12315,36 @@
               "value": {
                 "min": 1,
                 "max": 1,
-                "constraints": [
-                  {
-                    "type": "ValueSetConstraint",
-                    "valueset": "http://standardhealthrecord.org/shr/core/vs/UpperBoundTypeVS",
-                    "bindingStrength": "REQUIRED",
-                    "path": ""
-                  }
-                ],
+                "constraints": [],
                 "type": "IdentifiableValue",
-                "label": "primitive:code",
+                "label": "shr.core:Quantity",
                 "identifier": {
-                  "label": "code",
+                  "label": "Quantity",
                   "type": "Identifier",
-                  "namespace": "primitive"
+                  "namespace": "shr.core"
                 }
               },
-              "children": []
+              "children": [
+                {
+                  "min": 1,
+                  "max": 1,
+                  "constraints": [
+                    {
+                      "type": "ValueSetConstraint",
+                      "valueset": "http://standardhealthrecord.org/shr/core/vs/UpperBoundTypeVS",
+                      "bindingStrength": "REQUIRED",
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:BoundType",
+                  "identifier": {
+                    "label": "BoundType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
+                  }
+                }
+              ]
             },
             {
               "type": "DataElement",
@@ -15246,12 +15202,15 @@
                 "max": 1,
                 "constraints": [
                   {
-                    "type": "TypeConstraint",
-                    "isA": {
-                      "_namespace": "shr.core",
-                      "_name": "DollarAmount"
+                    "type": "CodeConstraint",
+                    "code": {
+                      "label": "urn:iso:std:iso:4217:USD",
+                      "type": "Concept",
+                      "system": "urn:iso:std:iso:4217",
+                      "code": "USD",
+                      "url": "https://www.iso.org/iso-4217-currency-codes.html"
                     },
-                    "path": ""
+                    "path": "shr.core.Units:shr.core.Coding"
                   }
                 ],
                 "type": "IdentifiableValue",
@@ -16044,8 +16003,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:AnimalExposure",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:AnimalExposure",
                   "identifier": {
                     "label": "AnimalExposure",
                     "type": "Identifier",
@@ -16382,8 +16341,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:AnnualIncome",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:AnnualIncome",
                   "identifier": {
                     "label": "AnnualIncome",
                     "type": "Identifier",
@@ -16393,8 +16352,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:IncomeSource",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:IncomeSource",
                   "identifier": {
                     "label": "IncomeSource",
                     "type": "Identifier",
@@ -16405,8 +16364,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:IncomeStability",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:IncomeStability",
                   "identifier": {
                     "label": "IncomeStability",
                     "type": "Identifier",
@@ -16417,8 +16376,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordFood",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordFood",
                   "identifier": {
                     "label": "CanAffordFood",
                     "type": "Identifier",
@@ -16429,8 +16388,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordHousing",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordHousing",
                   "identifier": {
                     "label": "CanAffordHousing",
                     "type": "Identifier",
@@ -16441,8 +16400,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordClothing",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordClothing",
                   "identifier": {
                     "label": "CanAffordClothing",
                     "type": "Identifier",
@@ -16453,8 +16412,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordUtilities",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordUtilities",
                   "identifier": {
                     "label": "CanAffordUtilities",
                     "type": "Identifier",
@@ -16465,8 +16424,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordTransportation",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordTransportation",
                   "identifier": {
                     "label": "CanAffordTransportation",
                     "type": "Identifier",
@@ -16477,8 +16436,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordMedication",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordMedication",
                   "identifier": {
                     "label": "CanAffordMedication",
                     "type": "Identifier",
@@ -16489,8 +16448,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordDentalCare",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordDentalCare",
                   "identifier": {
                     "label": "CanAffordDentalCare",
                     "type": "Identifier",
@@ -16501,8 +16460,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:CanAffordChildCare",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:CanAffordChildCare",
                   "identifier": {
                     "label": "CanAffordChildCare",
                     "type": "Identifier",
@@ -16512,8 +16471,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:NonCashBenefit",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:NonCashBenefit",
                   "identifier": {
                     "label": "NonCashBenefit",
                     "type": "Identifier",
@@ -16626,6 +16585,41 @@
                     "type": "Identifier",
                     "namespace": "shr.core"
                   }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:HouseholdSize",
+                  "identifier": {
+                    "label": "HouseholdSize",
+                    "type": "Identifier",
+                    "namespace": "shr.environment"
+                  }
+                },
+                {
+                  "min": 0,
+                  "constraints": [],
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:Coinhabitant",
+                  "identifier": {
+                    "label": "Coinhabitant",
+                    "type": "Identifier",
+                    "namespace": "shr.environment"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:NumberOfDependents",
+                  "identifier": {
+                    "label": "NumberOfDependents",
+                    "type": "Identifier",
+                    "namespace": "shr.environment"
+                  }
                 }
               ]
             },
@@ -16659,7 +16653,19 @@
               "value": {
                 "min": 1,
                 "max": 1,
-                "constraints": [],
+                "constraints": [
+                  {
+                    "type": "CodeConstraint",
+                    "code": {
+                      "label": "http://unitsofmeasure.org:1",
+                      "type": "Concept",
+                      "system": "http://unitsofmeasure.org",
+                      "code": "1",
+                      "url": "http://unitsofmeasure.org/ucum.html#section-Alphabetic-Index-By-Symbol"
+                    },
+                    "path": "shr.core.Units:shr.core.Coding"
+                  }
+                ],
                 "type": "IdentifiableValue",
                 "label": "shr.core:Quantity",
                 "identifier": {
@@ -16980,7 +16986,19 @@
               "value": {
                 "min": 1,
                 "max": 1,
-                "constraints": [],
+                "constraints": [
+                  {
+                    "type": "CodeConstraint",
+                    "code": {
+                      "label": "http://unitsofmeasure.org:1",
+                      "type": "Concept",
+                      "system": "http://unitsofmeasure.org",
+                      "code": "1",
+                      "url": "http://unitsofmeasure.org/ucum.html#section-Alphabetic-Index-By-Symbol"
+                    },
+                    "path": "shr.core.Units:shr.core.Coding"
+                  }
+                ],
                 "type": "IdentifiableValue",
                 "label": "shr.core:Quantity",
                 "identifier": {
@@ -17100,8 +17118,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:TransportationAvailability",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:TransportationAvailability",
                   "identifier": {
                     "label": "TransportationAvailability",
                     "type": "Identifier",
@@ -17112,8 +17130,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:HousingSecurity",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:HousingSecurity",
                   "identifier": {
                     "label": "HousingSecurity",
                     "type": "Identifier",
@@ -17124,8 +17142,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:PhysicalSafety",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:PhysicalSafety",
                   "identifier": {
                     "label": "PhysicalSafety",
                     "type": "Identifier",
@@ -17136,8 +17154,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:EmotionalSafety",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:EmotionalSafety",
                   "identifier": {
                     "label": "EmotionalSafety",
                     "type": "Identifier",
@@ -17148,8 +17166,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:DomesticViolence",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:DomesticViolence",
                   "identifier": {
                     "label": "DomesticViolence",
                     "type": "Identifier",
@@ -17159,8 +17177,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.environment:HomeEnvironmentRisk",
+                  "type": "RefValue",
+                  "label": "reference to shr.environment:HomeEnvironmentRisk",
                   "identifier": {
                     "label": "HomeEnvironmentRisk",
                     "type": "Identifier",
@@ -18634,6 +18652,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "Observation",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -18704,6 +18729,72 @@
                     "type": "Identifier",
                     "namespace": "shr.core"
                   }
+                },
+                {
+                  "min": 1,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.lifehistory:MilitaryStatus",
+                  "identifier": {
+                    "label": "MilitaryStatus",
+                    "type": "Identifier",
+                    "namespace": "shr.lifehistory"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "TBD",
+                  "text": "MilitaryRank"
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.lifehistory:MilitaryServiceDischargeStatus",
+                  "identifier": {
+                    "label": "MilitaryServiceDischargeStatus",
+                    "type": "Identifier",
+                    "namespace": "shr.lifehistory"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.lifehistory:MilitaryBranch",
+                  "identifier": {
+                    "label": "MilitaryBranch",
+                    "type": "Identifier",
+                    "namespace": "shr.lifehistory"
+                  }
+                },
+                {
+                  "min": 0,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.lifehistory:MilitaryServiceEra",
+                  "identifier": {
+                    "label": "MilitaryServiceEra",
+                    "type": "Identifier",
+                    "namespace": "shr.lifehistory"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.lifehistory:ServiceConnectedDisability",
+                  "identifier": {
+                    "label": "ServiceConnectedDisability",
+                    "type": "Identifier",
+                    "namespace": "shr.lifehistory"
+                  }
                 }
               ]
             },
@@ -18719,6 +18810,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "Observation",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -18752,6 +18850,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "Observation",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -18994,6 +19099,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "Observation",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -20024,6 +20136,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "Procedure",
+                  "type": "Identifier",
+                  "namespace": "shr.procedure"
+                }
+              ],
               "children": [
                 {
                   "min": 1,
@@ -20042,9 +20161,9 @@
                   "max": 1,
                   "constraints": [],
                   "type": "IdentifiableValue",
-                  "label": "shr.medication:TypeOfChange",
+                  "label": "shr.medication:MedicationChangeType",
                   "identifier": {
-                    "label": "TypeOfChange",
+                    "label": "MedicationChangeType",
                     "type": "Identifier",
                     "namespace": "shr.medication"
                   }
@@ -20079,6 +20198,39 @@
                   "text": "ReasonForMedicationChange"
                 }
               ]
+            },
+            {
+              "type": "DataElement",
+              "label": "MedicationChangeType",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "Whether the change is a dose change, switch to a new medication, or discontinuation.",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [
+                  {
+                    "type": "ValueSetConstraint",
+                    "valueset": "http://standardhealthrecord.org/shr/medication/vs/MedicationChangeTypeVS",
+                    "bindingStrength": "REQUIRED",
+                    "path": ""
+                  }
+                ],
+                "type": "IdentifiableValue",
+                "label": "shr.core:CodeableConcept",
+                "identifier": {
+                  "label": "CodeableConcept",
+                  "type": "Identifier",
+                  "namespace": "shr.core"
+                }
+              },
+              "children": []
             },
             {
               "type": "DataElement",
@@ -20680,39 +20832,6 @@
                 "constraints": [],
                 "type": "TBD",
                 "text": "Timing"
-              },
-              "children": []
-            },
-            {
-              "type": "DataElement",
-              "label": "TypeOfChange",
-              "isEntry": false,
-              "isAbstract": false,
-              "concepts": [],
-              "description": "Whether the change is a dose change, switch to a new medication, or discontinuation.",
-              "grammarVersion": {
-                "major": 5,
-                "minor": 0,
-                "patch": 0
-              },
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [
-                  {
-                    "type": "ValueSetConstraint",
-                    "valueset": "http://standardhealthrecord.org/shr/medication/vs/MedicationChangeTypeVS",
-                    "bindingStrength": "REQUIRED",
-                    "path": ""
-                  }
-                ],
-                "type": "IdentifiableValue",
-                "label": "shr.core:CodeableConcept",
-                "identifier": {
-                  "label": "CodeableConcept",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
               },
               "children": []
             }
@@ -24453,7 +24572,7 @@
             {
               "type": "DataElement",
               "label": "Procedure",
-              "isEntry": false,
+              "isEntry": true,
               "isAbstract": false,
               "concepts": [],
               "description": "An action that is or was performed on a patient. This can be a physical intervention like an operation, or less invasive like counseling or hypnotherapy.",
@@ -24700,7 +24819,7 @@
               },
               "basedOn": [
                 {
-                  "label": "Observation",
+                  "label": "Panel",
                   "type": "Identifier",
                   "namespace": "shr.observation"
                 }
@@ -25425,8 +25544,8 @@
                 {
                   "min": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.sex:SexualActivity",
+                  "type": "RefValue",
+                  "label": "reference to shr.sex:SexualActivity",
                   "identifier": {
                     "label": "SexualActivity",
                     "type": "Identifier",
@@ -25437,8 +25556,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.sex:NumberOfSexualPartnersPastYear",
+                  "type": "RefValue",
+                  "label": "reference to shr.sex:NumberOfSexualPartnersPastYear",
                   "identifier": {
                     "label": "NumberOfSexualPartnersPastYear",
                     "type": "Identifier",
@@ -25448,8 +25567,8 @@
                 {
                   "min": 0,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.sex:IntercourseDifficulty",
+                  "type": "RefValue",
+                  "label": "reference to shr.sex:IntercourseDifficulty",
                   "identifier": {
                     "label": "IntercourseDifficulty",
                     "type": "Identifier",
@@ -25498,6 +25617,30 @@
                     "label": "SpecificType",
                     "type": "Identifier",
                     "namespace": "shr.core"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "RefValue",
+                  "label": "reference to shr.sex:GenderIdentity",
+                  "identifier": {
+                    "label": "GenderIdentity",
+                    "type": "Identifier",
+                    "namespace": "shr.sex"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "RefValue",
+                  "label": "reference to shr.sex:SexualOrientation",
+                  "identifier": {
+                    "label": "SexualOrientation",
+                    "type": "Identifier",
+                    "namespace": "shr.sex"
                   }
                 }
               ]
@@ -26226,6 +26369,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "ObservationComponent",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "children": [
                 {
                   "min": 1,
@@ -26322,6 +26472,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "ObservationComponent",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -26385,6 +26542,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "ObservationComponent",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "children": [
                 {
                   "min": 0,
@@ -26480,6 +26644,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "ObservationComponent",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -26531,6 +26702,13 @@
                 "minor": 0,
                 "patch": 0
               },
+              "basedOn": [
+                {
+                  "label": "ObservationComponent",
+                  "type": "Identifier",
+                  "namespace": "shr.observation"
+                }
+              ],
               "value": {
                 "min": 1,
                 "max": 1,
@@ -26850,7 +27028,20 @@
               "value": {
                 "min": 1,
                 "max": 1,
-                "constraints": [],
+                "constraints": [
+                  {
+                    "type": "CodeConstraint",
+                    "code": {
+                      "label": "kg/m2 (http://unitsofmeasure.org:kg/m2)",
+                      "type": "Concept",
+                      "system": "http://unitsofmeasure.org",
+                      "code": "kg/m2",
+                      "display": "kg/m2",
+                      "url": "http://unitsofmeasure.org/ucum.html#section-Alphabetic-Index-By-Symbol"
+                    },
+                    "path": "shr.core.Units:shr.core.Coding"
+                  }
+                ],
                 "type": "IdentifiableValue",
                 "label": "shr.core:Quantity",
                 "identifier": {
@@ -26864,8 +27055,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.vital:BodyWeight",
+                  "type": "RefValue",
+                  "label": "reference to shr.vital:BodyWeight",
                   "identifier": {
                     "label": "BodyWeight",
                     "type": "Identifier",
@@ -26876,8 +27067,8 @@
                   "min": 0,
                   "max": 1,
                   "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.vital:BodyHeight",
+                  "type": "RefValue",
+                  "label": "reference to shr.vital:BodyHeight",
                   "identifier": {
                     "label": "BodyHeight",
                     "type": "Identifier",
@@ -29747,6 +29938,7 @@
         {
           "label": "UpperBoundTypeVS",
           "namespace": "shr.core",
+          "description": "Indicates the actual value is lt (<) or lte (<=) the given value.",
           "type": "ValueSet",
           "url": "http://standardhealthrecord.org/shr/core/vs/UpperBoundTypeVS",
           "concepts": [],
@@ -29783,6 +29975,7 @@
         {
           "label": "LowerBoundTypeVS",
           "namespace": "shr.core",
+          "description": "Indicates the actual value is gt (>) or gte (>=) the given value.",
           "type": "ValueSet",
           "url": "http://standardhealthrecord.org/shr/core/vs/LowerBoundTypeVS",
           "concepts": [],
