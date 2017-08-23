@@ -386,6 +386,9 @@ class Namespace:
       # Prepares children so they aren't defined in multiple places
       element.parse_children(self.data_elements)
       self.uses.update(element.uses)
+    for i in ['primitive', self.label]:
+      if i in self.uses:
+        self.uses.remove(i)
     return base_elems
 
   def __str__(self):
