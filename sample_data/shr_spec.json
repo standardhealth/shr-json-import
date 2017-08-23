@@ -5360,6 +5360,7 @@
                         "_namespace": "shr.behavior",
                         "_name": "AssessmentTool"
                       },
+                      "onValue": false,
                       "path": ""
                     }
                   ],
@@ -8643,6 +8644,7 @@
                         "_namespace": "shr.core",
                         "_name": "Age"
                       },
+                      "onValue": true,
                       "path": ""
                     }
                   ],
@@ -8664,6 +8666,7 @@
                         "_namespace": "shr.core",
                         "_name": "Age"
                       },
+                      "onValue": true,
                       "path": ""
                     }
                   ],
@@ -12213,6 +12216,7 @@
                         "_namespace": "shr.core",
                         "_name": "UnitedStatesState"
                       },
+                      "onValue": false,
                       "path": ""
                     }
                   ],
@@ -17397,7 +17401,11 @@
                       "path": "shr.immunization.LotNumber"
                     }
                   ],
-                  "type": "Incomplete"
+                  "type": "Incomplete",
+                  "rawPath": [
+                    "Vaccine.VaccineManufacturer",
+                    "Vaccine.LotNumber"
+                  ]
                 },
                 {
                   "constraints": [
@@ -18069,6 +18077,7 @@
                         "_namespace": "shr.lab",
                         "_name": "TestMethod"
                       },
+                      "onValue": false,
                       "path": ""
                     }
                   ],
@@ -19052,6 +19061,7 @@
                         "_namespace": "shr.core",
                         "_name": "GestationalTemporalContext"
                       },
+                      "onValue": true,
                       "path": ""
                     }
                   ],
@@ -20396,7 +20406,10 @@
                       "path": "shr.core.Reason"
                     }
                   ],
-                  "type": "Incomplete"
+                  "type": "Incomplete",
+                  "rawPath": [
+                    "NonOccurrenceModifier.Reason"
+                  ]
                 },
                 {
                   "constraints": [
@@ -21373,7 +21386,10 @@
                       "path": "shr.core.Reason"
                     }
                   ],
-                  "type": "Incomplete"
+                  "type": "Incomplete",
+                  "rawPath": [
+                    "NonOccurrenceModifier.Reason"
+                  ]
                 },
                 {
                   "min": 0,
@@ -22110,6 +22126,7 @@
                         "_namespace": "shr.oncology",
                         "_name": "PrimaryTumorSite"
                       },
+                      "onValue": false,
                       "path": ""
                     }
                   ],
@@ -25876,6 +25893,7 @@
                         "_namespace": "shr.skin",
                         "_name": "PressureUlcerManifestation"
                       },
+                      "onValue": false,
                       "path": ""
                     }
                   ],
@@ -26282,6 +26300,7 @@
                       "_namespace": "shr.skin",
                       "_name": "SupportSurface"
                     },
+                    "onValue": false,
                     "path": ""
                   }
                 ],
