@@ -23,7 +23,19 @@ class IdentifiableValue:
     identifier = value.get('identifier', {})
     self.label = identifier.get('label', '')
     self.namespace = identifier.get('namespace', '')
-    self.constraint = str(Constraints(value.get('constraints', []), self.label))
+    constraint = Constraints(value.get('constraints', []), self.label)
+    self.constraint = str(constraint)
+    self.codesystems = constraint.codesystems
+    self.uses = constraint.uses
+
+  def to_string_value(self) -> str:
+    if not self.label:
+      return ''
+    text = '{0:20}ref({1})' if self.is_ref else '{0:20}{1}'
+    if self.constraint:
+      return text.format('Value:', self.constraint)
+    else:
+      return text.format('Value:', self.label)
 
   def __str__(self):
     text = '{0:20}ref({1})' if self.is_ref else '{0:20}{1}'
@@ -45,6 +57,13 @@ class ChildTBD:
     self.no_range = 'min' not in value and 'max' not in value
     self.min = str(value.get('min', 0))
     self.max = str(value.get('max', '*'))
+    self.codesystems = dict()
+    self.uses = set()
+
+  def to_string_value(self) -> str:
+    if self.text:
+      return '{0:20}TBD "{1}"'.format('Value:', self.text)
+    return ''
 
   def __str__(self):
     if self.no_range:
@@ -58,23 +77,28 @@ class Incomplete:
 
   def __init__(self, value: dict):
     self.text = value.get('text', '')
+    self.raw_paths = value.get('rawPath', [])
     self.constraints = value.get('constraints', [])
-    self.raw_path = value.get('rawPath', [])
+    constraint = Constraints(self.constraints, raw_paths=self.raw_paths)
+    self.labels = str(constraint)
+    self.codesystems = constraint.codesystems
+    self.uses = constraint.uses
 
-  def item_to_string(self, card: dict, path: str) -> str:
+  def item_to_string(self, card: dict, label: str) -> str:
     no_range = 'min' not in card and 'max' not in card
     c_min = str(card.get('min', 0))
     c_max = str(card.get('max', '*'))
     if no_range:
-      return '{0:20}{1}'.format('', path)
+      return '{0:20}{1}'.format('', label)
     else:
       range_vals = '{0}..{1}'.format(c_min, c_max)
-      return '{0:20}{1}'.format(range_vals, path)
+      return '{0:20}{1}'.format(range_vals, label)
 
   def __str__(self):
     items = []
+    labels = self.labels.split('\n')
     for i, c in enumerate(self.constraints):
-      items.append(self.item_to_string(c, self.raw_path[i]))
+      items.append(self.item_to_string(c, labels[i]))
     return '\n'.join(items)
 
 
@@ -85,6 +109,9 @@ class ChoiceValue:
     self.min = str(value.get('min', 0))
     self.max = str(value.get('max', '*'))
     self.elements = defaultdict(list)
+    self.namespaces = set()
+    self.codesystems = dict()
+    self.uses = set()
     self.values = self.build_values(value.get('value', []))
 
   def build_values(self, vs: list) -> list:
@@ -92,8 +119,16 @@ class ChoiceValue:
     for value in vs:
       label = value.get('identifier', {}).get('label', '')
       namespace = value.get('identifier', {}).get('namespace', '')
+      if namespace:
+        self.namespaces.add(namespace)
       v_type = value.get('type')
-      if v_type == 'RefValue':
+      c = Constraints(value.get('constraints', []), label)
+      constraint = str(c)
+      self.codesystems.update(c.codesystems)
+      self.uses.update(c.uses)
+      if constraint:
+        values.append(constraint)
+      elif v_type == 'RefValue':
         values.append('ref({0})'.format(label))
         self.elements[namespace].append(label)
       elif v_type == 'TBD':
@@ -102,6 +137,14 @@ class ChoiceValue:
         self.elements[namespace].append(label)
         values.append(label)
     return values
+
+  def to_string_value(self):
+    values = ' or '.join(filter(None, self.values))
+    if not values:
+      return ''
+    elif not self.no_range:
+      vals = '{0}..{1} ({2})'.format(self.min, self.max, values)
+    return '{0:20}{1}'.format('Value:', vals), self.namespaces
 
   def __str__(self):
     values = ' or '.join(filter(None, self.values))
@@ -143,44 +186,46 @@ class DataElement:
     for child in self.children:
       c_type = child.get('type')
       if c_type == 'IdentifiableValue':
-        iv = IdentifiableValue(child)
-        self.properties.append(str(iv))
-        if iv.constraint:
+        new_child = IdentifiableValue(child)
+        self.properties.append(str(new_child))
+        if new_child.constraint:
           for c in child.get('constraints', []):
             if c.get('type', '') == 'TypeConstraint':
               name = c.get('isA', {}).get('_name', '')
               namespace = c.get('isA', {}).get('_namespace', '')
               if name and namespace == self.namespace:
                 self.update_definitions(elements, name)
-        if iv.namespace == self.namespace:
-          self.update_definitions(elements, iv.label)
+        if new_child.namespace == self.namespace:
+          self.update_definitions(elements, new_child.label)
         else:
-          self.uses.add(iv.namespace)
+          self.uses.add(new_child.namespace)
       elif c_type == 'TBD':
-        tbd = ChildTBD(child)
-        self.properties.append(str(tbd))
+        new_child = ChildTBD(child)
+        self.properties.append(str(new_child))
       elif c_type == 'ChoiceValue':
-        cv = ChoiceValue(child)
-        for namespace in cv.elements:
+        new_child = ChoiceValue(child)
+        for namespace in new_child.elements:
           if namespace == self.namespace:
-            for label in cv.elements[namespace]:
+            for label in new_child.elements[namespace]:
               self.update_definitions(elements, label)
           else:
             self.uses.add(namespace)
-        self.properties.append(str(cv))
+        self.properties.append(str(new_child))
       elif c_type == 'RefValue':
-        ivr = IdentifiableValue(child, is_ref=True)
-        self.properties.append(str(ivr))
-        if ivr.namespace == self.namespace:
-          self.update_definitions(elements, ivr.label)
+        new_child = IdentifiableValue(child, is_ref=True)
+        self.properties.append(str(new_child))
+        if new_child.namespace == self.namespace:
+          self.update_definitions(elements, new_child.label)
         else:
-          self.uses.add(ivr.namespace)
+          self.uses.add(new_child.namespace)
       # TODO Update when fixed
       elif c_type == 'Incomplete':
-        inc = Incomplete(child)
-        self.properties.append(str(inc))
+        new_child = Incomplete(child)
+        self.properties.append(str(new_child))
       else:
         print('STATUS', c_type, child.get('label'), self.namespace)
+      self.codesystems.update(new_child.codesystems)
+      self.uses.update(new_child.uses)
 
   # Build concept list
   def build_concepts(self, concepts: list) -> list:
@@ -221,50 +266,36 @@ class DataElement:
 
   #  Builds value line
   def build_value(self, value: dict) -> str:
+    if not value:
+      return ''
     label = value.get('identifier', {}).get('label', '')
     namespace = value.get('identifier', {}).get('namespace', '')
     if namespace:
       self.uses.add(namespace)
-    constraint = str(Constraints(value.get('constraints', []), label))
-    if value.get('type') == 'ChoiceValue':
-      no_range = 'min' not in value and 'max' not in value
-      c_min = str(value.get('min', 0))
-      c_max = str(value.get('max', '*'))
-      vs = value.get('value', [])
-      values = []
-      for value in vs:
-        identifier = value.get('identifier', {})
-        label = value.get('identifier', {}).get('label', '')
-        constraint = str(Constraints(value.get('constraints', []), label))
-        # Find dependencies in the value
-        namespace = identifier.get('namespace', '')
-        if namespace:
-          self.uses.add(namespace)
-        # Get display value for each child
-        if constraint:
-          values.append(constraint)
-        elif value.get('type') == 'RefValue':
-          values.append('ref({0})'.format(label))
-        elif value.get('type') == 'TBD':
-          values.append('TBD "{0}"'.format(value.get('text', '')))
-        else:
-          values.append(label)
-      vals = ' or '.join(filter(None, values))
-      if not no_range:
-        vals = '{0}..{1} ({2})'.format(c_min, c_max, vals)
-      return '{0:20}{1}'.format('Value:', vals)
-    elif label and not constraint:
-      return '{0:20}{1}'.format('Value:', label)
-    elif label and constraint:
-      vs = value.get('constraints')[0].get('valueset', '')
-      system = value.get('constraints')[0].get('code', {}).get('system', '')
-      abbrev = CodeSystems.get(vs) if vs else CodeSystems.get(system)
-      if abbrev and vs:
-        self.codesystems[vs] = abbrev
-      elif abbrev and system:
-        self.codesystems[system] = abbrev
-      return '{0:20}{1}'.format('Value:', constraint)
-    return ''
+    constraint = Constraints(value.get('constraints', []), label)
+    constraint_string = str(constraint)
+    self.codesystems.update(constraint.codesystems)
+    self.uses.update(constraint.uses)
+    v_type = value.get('type')
+    if v_type == 'ChoiceValue':
+      cv = ChoiceValue(value)
+      output, namespaces = cv.to_string_value()
+      for i in namespaces:
+        self.uses.add(i)
+      return output
+    elif v_type == 'IdentifiableValue':
+      return IdentifiableValue(value).to_string_value()
+    elif v_type == 'RefValue':
+      return IdentifiableValue(value, is_ref=True).to_string_value()
+    elif v_type == 'TBD':
+      return ChildTBD(value).to_string_value()
+    else:
+      if constraint:
+        return '{0:20}{1}'.format('Value:', constraint)
+      elif label:
+        return '{0:20}{1}'.format('Value:', label)
+      else:
+        return ''
 
   # Converts data element to string
   def to_string(self, elements: dict) -> str:

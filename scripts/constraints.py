@@ -1,11 +1,16 @@
+import re
+
 from scripts.codesystems import CodeSystems
 
 
 class Constraints:
 
-  def __init__(self, constraints: list, label: str):
+  def __init__(self, constraints: list, label: str='', raw_paths: list=[]):
     self.constraints = constraints
     self.label = label
+    self.raw_paths = raw_paths
+    self.codesystems = dict()
+    self.uses = set()
     if constraints:
       self.c_type = constraints[0].get('type')
 
@@ -14,6 +19,8 @@ class Constraints:
     cp = self.constraints[0].get('path', '')
     valueset = self.constraints[0].get('valueset')
     if 'http://standardhealthrecord.org/shr/' in valueset:
+      use = re.search(r'shr/(.*)/vs', valueset).group(1)
+      self.uses.add('shr.{0}'.format(use))
       valueset = valueset.rpartition('/')[2]
     elif 'urn:tbd' in valueset:
       valueset = 'TBD "{0}"'.format(valueset.rpartition(':')[2])
@@ -33,6 +40,8 @@ class Constraints:
     code = self.constraints[0].get('code')
     system = code.get('system')
     abbrev = CodeSystems.get(system)
+    if system and abbrev and abbrev != 'TBD':
+      self.codesystems[system] = abbrev
     display = code.get('display', '')
     text = '{0}#{1} "{2}"' if display else '{0}#{1}'
     source = text.format(abbrev, code.get('code'), display)
@@ -49,6 +58,8 @@ class Constraints:
       code = i.get('code')
       system = code.get('system')
       abbrev = CodeSystems.get(system)
+      if system and abbrev and abbrev != 'TBD':
+        self.codesystems[system] = abbrev
       display = code.get('display', '')
       text = '{0}#{1} "{2}"' if display else '{0}#{1}'
       source = text.format(abbrev, code.get('code'), display)
@@ -65,8 +76,16 @@ class Constraints:
     return ' or '.join(types)
 
   def get_card(self):
-    print('ADD CARDCONSTRAINT')
-    return ''
+    return '{0}'.format(self.label)
+
+  def get_raw_path(self):
+    output = []
+    for i, c in enumerate(self.constraints):
+      # TEMPORARY FIX TO STOP VALUESET REPETITION BUG
+      if c.get('type') == 'ValueSetConstraint':
+        c['path'] = ''
+      output.append(str(Constraints([c], self.raw_paths[i])))
+    return '\n'.join(filter(None, output))
 
   def __str__(self):
     type_handler = {
@@ -79,6 +98,8 @@ class Constraints:
     }
     if not self.constraints:
       return ''
+    elif self.raw_paths:
+      return self.get_raw_path()
     elif self.c_type not in type_handler:
       print(self.c_type, 'MISSING')
       return ''
