@@ -257,7 +257,8 @@ class DataElement:
   def build_based_on(self, based_on: list) -> str:
     values = []
     for i in based_on:
-      values.append('{0:20}{1}'.format('Based on:', i.get('label', '')))
+      text = '{0:20}TBD "{1}"' if i.get('type') == 'TBD' else '{0:20}{1}'
+      values.append(text.format('Based on:', i.get('label', '')))
       namespace = i.get('namespace', '')
       if namespace and namespace != self.namespace:
         self.uses.add(namespace)
