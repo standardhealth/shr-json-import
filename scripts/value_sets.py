@@ -44,8 +44,9 @@ class Value:
   # Handles code type ValueSetIncludesDescendentsRule
   def handle_descendents_rule(self, value: dict) -> None:
     self.parse_code_dict(value.get('code', {}))
-    text = 'Includes codes descending from {0}#{1} "{2}"'
-    self.display_text = text.format(self.abbrev, self.code, self.label)
+    extra = ' "{0}"'.format(self.label) if self.abbrev != 'TBD' else ''
+    text = 'Includes codes descending from {0}#{1}{2}'
+    self.display_text = text.format(self.abbrev, self.code, extra)
 
   # Handles code type ValueSetIncludesFromCodeSystemRule
   def handle_from_code_system_rule(self, value: dict) -> None:

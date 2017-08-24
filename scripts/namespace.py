@@ -19,14 +19,16 @@ def get_constraint(constraints: list, label: str) -> str:
   c_type = constraints[0].get('type')
   if c_type == 'ValueSetConstraint':
     binding = constraints[0].get('bindingStrength', '')
+    path = constraints[0].get('path', '')
     ext = ' if covered' if binding == 'EXTENSIBLE' else ''
     pre = ' should be' if binding == 'PREFERRED' else ''
+    pat = ' {0}.{1}'.format(label, path.rpartition('.')[2]) if path else ''
     valueset = constraints[0].get('valueset')
     if 'http://standardhealthrecord.org/shr/' in valueset:
       valueset = valueset.rpartition('/')[2]
     elif 'urn:tbd' in valueset:
       valueset = 'TBD "{0}"'.format(valueset.rpartition(':')[2])
-    return '{0}{3} from {1}{2}'.format(label, valueset, ext, pre)
+    return '{0}{3}{4} from {1}{2}'.format(label, valueset, ext, pre, pat)
   elif c_type == 'CodeConstraint':
     code = constraints[0].get('code')
     system = code.get('system')
@@ -53,8 +55,10 @@ def get_constraint(constraints: list, label: str) -> str:
   elif c_type == 'TypeConstraint':
     types = []
     for i in constraints:
+      isVal = i.get('onValue', False)
+      text = '{0} value is type {1}' if isVal else '{0} is type {1}'
       name = i.get('isA', {}).get('_name')
-      types.append('{0} is type {1}'.format(label, name))
+      types.append(text.format(label, name))
     return ' or '.join(types)
   # TODO Add functionality to card constraint when done
   elif c_type == 'CardConstraint':
@@ -105,6 +109,30 @@ class ChildTBD:
       return '{0:20}TBD "{1}"'.format(range_vals, self.text)
 
 
+class Incomplete:
+
+  def __init__(self, value: dict):
+    self.text = value.get('text', '')
+    self.constraints = value.get('constraints', [])
+    self.raw_path = value.get('rawPath', [])
+
+  def item_to_string(self, card: dict, path: str) -> str:
+    no_range = 'min' not in card and 'max' not in card
+    c_min = str(card.get('min', 0))
+    c_max = str(card.get('max', '*'))
+    if no_range:
+      return '{0:20}{1}'.format('', path)
+    else:
+      range_vals = '{0}..{1}'.format(c_min, c_max)
+      return '{0:20}{1}'.format(range_vals, path)
+
+  def __str__(self):
+    items = []
+    for i, c in enumerate(self.constraints):
+      items.append(self.item_to_string(c, self.raw_path[i]))
+    return '\n'.join(items)
+
+
 class ChoiceValue:
 
   def __init__(self, value: dict):
@@ -124,7 +152,7 @@ class ChoiceValue:
         values.append('ref({0})'.format(label))
         self.elements[namespace].append(label)
       elif v_type == 'TBD':
-        values.append('TBD "{0}'.format(value.get('text', '')))
+        values.append('TBD "{0}"'.format(value.get('text', '')))
       else:
         self.elements[namespace].append(label)
         values.append(label)
@@ -148,7 +176,7 @@ class DataElement:
     self.codesystems = dict()
     self.uses = set()
     self.concepts = self.build_concepts(data_element.get('concepts', []))
-    self.based_on = data_element.get('basedOn', [])
+    self.based_on = self.build_based_on(data_element.get('basedOn', []))
     self.description = data_element.get('description', '')
     self.is_entry = data_element.get('isEntry', False)
     self.is_abstract = data_element.get('isAbstract', False)
@@ -204,7 +232,8 @@ class DataElement:
           self.uses.add(ivr.namespace)
       # TODO Update when fixed
       elif c_type == 'Incomplete':
-        print('INCOMPLETE', c_type, child.get('label', ''), self.namespace)
+        inc = Incomplete(child)
+        self.properties.append(str(inc))
       else:
         print('STATUS', c_type, child.get('label'), self.namespace)
 
@@ -231,10 +260,13 @@ class DataElement:
     return '\n\n'.join(all_definitions)
 
   # Builds line for data elements based on others
-  def build_based_on(self) -> str:
+  def build_based_on(self, based_on: list) -> str:
     values = []
-    for i in self.based_on:
+    for i in based_on:
       values.append('{0:20}{1}'.format('Based on:', i.get('label', '')))
+      namespace = i.get('namespace', '')
+      if namespace and namespace != self.namespace:
+        self.uses.add(namespace)
     return '\n'.join(values)
 
   def build_description(self) -> str:
@@ -285,7 +317,7 @@ class DataElement:
     title_text = 'EntryElement:' if self.is_entry else 'Element:'
     title = '{0:20}{1}'.format(title_text, self.label)
     concept = self.concepts
-    based_on = self.build_based_on()
+    based_on = self.based_on
     description = self.build_description()
     # TODO finish value
     value = self.value
@@ -322,8 +354,14 @@ class Namespace:
   def build_header(self) -> str:
     grammar = '{0:20}DataElement {1}'.format('Grammar:', self.version)
     namespace = '{0:20}{1}'.format('Namespace:', self.label)
-    description = '{0:20}"{1}"'.format('Description:', self.description)
-    uses = '{0:20}{1}'.format('Uses:', ', '.join(self.uses))
+    if self.description:
+      description = '{0:20}"{1}"'.format('Description:', self.description)
+    else:
+      description = ''
+    if self.uses:
+      uses = '{0:20}{1}'.format('Uses:', ', '.join(self.uses))
+    else:
+      uses = ''
     output = [grammar, namespace, description, uses]
     return '\n'.join(filter(None, output))
 
@@ -355,7 +393,7 @@ class Namespace:
         # if child_value_type == 'IdentifiableValue' and cvn == self.label:
         #   print(child.get('value').get('label'))
         #   self.populate_master_lists([child.get('value', {})], label)
-      elif child_type == 'IdentifiableValue':
+      elif child_type == 'IdentifiableValue' or child_type == 'RefValue':
         if len(constraints) and constraints[0].get('type') == 'TypeConstraint':
           for i in constraints:
             labels.append(i.get('isA', {}).get('_name', ''))
