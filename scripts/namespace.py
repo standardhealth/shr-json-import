@@ -31,11 +31,15 @@ class IdentifiableValue:
   def to_string_value(self) -> str:
     if not self.label:
       return ''
-    text = '{0:20}ref({1})' if self.is_ref else '{0:20}{1}'
-    if self.constraint:
-      return text.format('Value:', self.constraint)
+    if self.min == '1' and self.max == '1':
+      range_vals = ''
     else:
-      return text.format('Value:', self.label)
+      range_vals = '{0}..{1} '.format(self.min, self.max)
+    text = '{0:20}{2}ref({1})' if self.is_ref else '{0:20}{2}{1}'
+    if self.constraint:
+      return text.format('Value:', self.constraint, range_vals)
+    else:
+      return text.format('Value:', self.label, range_vals)
 
   def __str__(self):
     text = '{0:20}ref({1})' if self.is_ref else '{0:20}{1}'
