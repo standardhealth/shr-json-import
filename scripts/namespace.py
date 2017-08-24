@@ -235,12 +235,15 @@ class DataElement:
       for value in vs:
         identifier = value.get('identifier', {})
         label = value.get('identifier', {}).get('label', '')
+        constraint = str(Constraints(value.get('constraints', []), label))
         # Find dependencies in the value
         namespace = identifier.get('namespace', '')
         if namespace:
           self.uses.add(namespace)
         # Get display value for each child
-        if value.get('type') == 'RefValue':
+        if constraint:
+          values.append(constraint)
+        elif value.get('type') == 'RefValue':
           values.append('ref({0})'.format(label))
         elif value.get('type') == 'TBD':
           values.append('TBD "{0}"'.format(value.get('text', '')))
