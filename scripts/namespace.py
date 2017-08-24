@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from scripts.codesystems import CodeSystems
+from scripts.constraints import Constraints
 
 
 # Formats version based on major, minor, and patch values
@@ -10,62 +11,6 @@ def get_version(version_dict):
   patch = version_dict.get('patch', 0)
   # return '{}.{}.{}'.format(major, minor, patch)
   return '{}.{}'.format(major, minor)
-
-
-# Parse Constraint for data elements and values
-def get_constraint(constraints: list, label: str) -> str:
-  if not constraints:
-    return ''
-  c_type = constraints[0].get('type')
-  if c_type == 'ValueSetConstraint':
-    binding = constraints[0].get('bindingStrength', '')
-    path = constraints[0].get('path', '')
-    ext = ' if covered' if binding == 'EXTENSIBLE' else ''
-    pre = ' should be' if binding == 'PREFERRED' else ''
-    pat = ' {0}.{1}'.format(label, path.rpartition('.')[2]) if path else ''
-    valueset = constraints[0].get('valueset')
-    if 'http://standardhealthrecord.org/shr/' in valueset:
-      valueset = valueset.rpartition('/')[2]
-    elif 'urn:tbd' in valueset:
-      valueset = 'TBD "{0}"'.format(valueset.rpartition(':')[2])
-    return '{0}{3}{4} from {1}{2}'.format(label, valueset, ext, pre, pat)
-  elif c_type == 'CodeConstraint':
-    code = constraints[0].get('code')
-    system = code.get('system')
-    abbrev = CodeSystems.get(system)
-    display = code.get('display', '')
-    text = '{0}#{1} "{2}"' if display else '{0}#{1}'
-    source = text.format(abbrev, code.get('code'), display)
-    conj = ' with units ' if label == 'Quantity' else ' is '
-    return '{0}{1}{2}'.format(label, conj, source)
-  elif c_type == 'BooleanConstraint':
-    value = str(constraints[0].get('value')).lower()
-    return '{0} is {1}'.format(label, value)
-  elif c_type == 'IncludesCodeConstraint':
-    includes = []
-    for i in constraints:
-      code = i.get('code')
-      system = code.get('system')
-      abbrev = CodeSystems.get(system)
-      display = code.get('display', '')
-      text = '{0}#{1} "{2}"' if display else '{0}#{1}'
-      source = text.format(abbrev, code.get('code'), display)
-      includes.append(source)
-    return '{0} includes {1}'.format(label, ' includes '.join(includes))
-  elif c_type == 'TypeConstraint':
-    types = []
-    for i in constraints:
-      isVal = i.get('onValue', False)
-      text = '{0} value is type {1}' if isVal else '{0} is type {1}'
-      name = i.get('isA', {}).get('_name')
-      types.append(text.format(label, name))
-    return ' or '.join(types)
-  # TODO Add functionality to card constraint when done
-  elif c_type == 'CardConstraint':
-    print('ADD CARDCONSTRAINT')
-  else:
-    print(c_type, 'MISSING')
-    return 'NONE'
 
 
 class IdentifiableValue:
@@ -78,7 +23,7 @@ class IdentifiableValue:
     identifier = value.get('identifier', {})
     self.label = identifier.get('label', '')
     self.namespace = identifier.get('namespace', '')
-    self.constraint = get_constraint(value.get('constraints', []), self.label)
+    self.constraint = str(Constraints(value.get('constraints', []), self.label))
 
   def __str__(self):
     text = '{0:20}ref({1})' if self.is_ref else '{0:20}{1}'
@@ -280,8 +225,11 @@ class DataElement:
     namespace = value.get('identifier', {}).get('namespace', '')
     if namespace:
       self.uses.add(namespace)
-    constraint = get_constraint(value.get('constraints', []), label)
+    constraint = str(Constraints(value.get('constraints', []), label))
     if value.get('type') == 'ChoiceValue':
+      no_range = 'min' not in value and 'max' not in value
+      c_min = str(value.get('min', 0))
+      c_max = str(value.get('max', '*'))
       vs = value.get('value', [])
       values = []
       for value in vs:
@@ -298,7 +246,10 @@ class DataElement:
           values.append('TBD "{0}"'.format(value.get('text', '')))
         else:
           values.append(label)
-      return '{0:20}{1}'.format('Value:', ' or '.join(filter(None, values)))
+      vals = ' or '.join(filter(None, values))
+      if not no_range:
+        vals = '{0}..{1} ({2})'.format(c_min, c_max, vals)
+      return '{0:20}{1}'.format('Value:', vals)
     elif label and not constraint:
       return '{0:20}{1}'.format('Value:', label)
     elif label and constraint:
