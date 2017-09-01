@@ -80,29 +80,24 @@ class ChildTBD:
 class Incomplete:
 
   def __init__(self, value: dict):
-    self.text = value.get('text', '')
-    self.raw_paths = value.get('rawPath', [])
-    self.constraints = value.get('constraints', [])
-    constraint = Constraints(self.constraints, raw_paths=self.raw_paths)
-    self.labels = str(constraint)
+    self.label = value.get('identifier', {}).get('label', '')
+    self.no_range = 'min' not in value and 'max' not in value
+    self.min = str(value.get('min', 0))
+    self.max = str(value.get('max', '*'))
+    constraint = Constraints(value.get('constraints', []), self.label)
+    self.constraint = str(constraint)
     self.codesystems = constraint.codesystems
     self.uses = constraint.uses
 
-  def item_to_string(self, card: dict, label: str) -> str:
-    no_range = 'min' not in card and 'max' not in card
-    c_min = str(card.get('min', 0))
-    c_max = str(card.get('max', '*'))
-    if no_range:
-      return '{0:20}{1}'.format('', label)
-    else:
-      range_vals = '{0}..{1}'.format(c_min, c_max)
-      return '{0:20}{1}'.format(range_vals, label)
-
   def __str__(self):
-    items = []
-    labels = self.labels.split('\n')
-    for i, c in enumerate(self.constraints):
-      items.append(self.item_to_string(c, labels[i]))
+    if self.constraint:
+      return self.constraint.rjust(len(self.constraint) + 30)
+    else:
+      if self.no_range:
+        return '{0:20}{1}'.format('', self.label)
+      else:
+        range_vals = '{0}..{1}'.format(self.min, self.max)
+        return '{0:20}{1}'.format(range_vals, self.label)
     return '\n'.join(items)
 
 

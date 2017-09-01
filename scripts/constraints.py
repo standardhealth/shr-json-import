@@ -1,14 +1,18 @@
 import re
-
+from collections import defaultdict
 from scripts.codesystems import CodeSystems
+
+
+def parse_path(label, path_string):
+  paths = [i.rpartition('.')[2] for i in path_string.split(':')]
+  return '.'.join(filter(None, [label] + paths))
 
 
 class Constraints:
 
-  def __init__(self, constraints: list, label: str='', raw_paths: list=[]):
+  def __init__(self, constraints: list, label: str=''):
     self.constraints = constraints
     self.label = label
-    self.raw_paths = raw_paths
     self.codesystems = dict()
     self.uses = set()
     if constraints:
@@ -71,21 +75,45 @@ class Constraints:
     for i in self.constraints:
       isVal = i.get('onValue', False)
       text = '{0} value is type {1}' if isVal else '{0} is type {1}'
-      name = i.get('isA', {}).get('_name')
+      name = i.get('isA', {}).get('label')
       types.append(text.format(self.label, name))
     return ' or '.join(types)
 
   def get_card(self):
-    return '{0}'.format(self.label)
+    cards = []
+    i = 0
+    while i < len(self.constraints):
+      c0 = self.constraints[i]
+      path = c0.get('path', '')
+      label = parse_path(self.label, path)
+      c_min = str(c0.get('min', 0))
+      c_max = str(c0.get('max', '*'))
+      range_vals = '{0}..{1}'.format(c_min, c_max)
+      constraint_sub = ''
+      if i + 1 < len(self.constraints):
+        c1 = self.constraints[i + 1]
+        if c1.get('type') != 'CardConstraint' and path == c1.get('path', ''):
+          c1['path'] = ''
+          constraint_sub = str(Constraints([c1], label))
+          i += 1
+      new_label = constraint_sub if constraint_sub else label
+      cards.append('{0:20}{1}'.format(range_vals, new_label))
+      i += 1
+    return '\n'.join(cards)
 
-  def get_raw_path(self):
-    output = []
-    for i, c in enumerate(self.constraints):
-      # TEMPORARY FIX TO STOP VALUESET REPETITION BUG
-      if c.get('type') == 'ValueSetConstraint':
-        c['path'] = ''
-      output.append(str(Constraints([c], self.raw_paths[i])))
-    return '\n'.join(filter(None, output))
+  def get_includes_type(self):
+    types_dict = defaultdict(list)
+    for i in self.constraints:
+      path = parse_path(self.label, i.get('path', ''))
+      is_a = i.get('isA', {})
+      c_min = str(i.get('min', 0))
+      c_max = str(i.get('max', '*'))
+      label = is_a.get('label', '')
+      includes = 'includes {0}..{1}'.format(c_min, c_max)
+      output = '{0:30}ref({1})'.format(includes, label)
+      types_dict[path].append(output)
+    paths = sorted(list(types_dict.keys()))
+    return '\n'.join('\n'.join([i] + types_dict[i]) for i in paths)
 
   def __str__(self):
     type_handler = {
@@ -95,11 +123,10 @@ class Constraints:
         'IncludesCodeConstraint': self.get_includes_code,
         'TypeConstraint': self.get_type,
         'CardConstraint': self.get_card,
+        'IncludesTypeConstraint': self.get_includes_type
     }
     if not self.constraints:
       return ''
-    elif self.raw_paths:
-      return self.get_raw_path()
     elif self.c_type not in type_handler:
       print(self.c_type, 'MISSING')
       return ''

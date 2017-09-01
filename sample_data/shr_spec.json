@@ -1692,6 +1692,18 @@
                     "type": "Identifier",
                     "namespace": "shr.observation"
                   }
+                },
+                {
+                  "min": 1,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.adverse:CauseCategory",
+                  "identifier": {
+                    "label": "CauseCategory",
+                    "type": "Identifier",
+                    "namespace": "shr.adverse"
+                  }
                 }
               ]
             },
@@ -1774,29 +1786,26 @@
               "label": "AdverseReaction",
               "isEntry": true,
               "isAbstract": false,
-              "concepts": [
-                {
-                  "label": "http://ncimeta.nci.nih.gov:C0559966",
-                  "type": "Concept",
-                  "system": "http://ncimeta.nci.nih.gov",
-                  "code": "C0559966",
-                  "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0559966;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-                }
-              ],
-              "description": "Any noxious and unintended response to a medical product, procedure, or other intervention, for which a causal relationship to an intervention is at least a reasonable possibility i.e., the relationship cannot be ruled out. The AssessmentFocus is one or more observations, typically the symptoms of the adverse reaction, such as severe nausea or elevated liver enyzmes.",
+              "concepts": [],
+              "description": "Any noxious and unintended response to a medical product, procedure, or other intervention, for which a causal relationship to an intervention is at least a reasonable possibility i.e., the relationship cannot be ruled out. It is not necessarily associated with a previously-recorded SubstanceRisk. This entry could be used to record the occurrence or non-occurrence of an adverse reaction.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
                 "patch": 0
               },
-              "basedOn": [
-                {
-                  "label": "AdverseEvent",
-                  "type": "Identifier",
-                  "namespace": "shr.adverse"
-                }
-              ],
               "children": [
+                {
+                  "min": 1,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "RefValue",
+                  "label": "reference to shr.adverse:AdverseEvent",
+                  "identifier": {
+                    "label": "AdverseEvent",
+                    "type": "Identifier",
+                    "namespace": "shr.adverse"
+                  }
+                },
                 {
                   "min": 0,
                   "constraints": [],
@@ -1827,7 +1836,7 @@
             {
               "type": "DataElement",
               "label": "AdverseReactionAttribution",
-              "isEntry": false,
+              "isEntry": true,
               "isAbstract": false,
               "concepts": [
                 {
@@ -1839,7 +1848,7 @@
                   "url": "https://uts.nlm.nih.gov/metathesaurus.html#C1510821;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
                 }
               ],
-              "description": "A possible cause of the adverse reaction (either known or theorized). There can be more than one possible cause.",
+              "description": "If an adverse reaction to treatment, a possible cause of the adverse reaction (either known or theorized). There can be more than one possible cause.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -1915,6 +1924,39 @@
                   }
                 }
               ]
+            },
+            {
+              "type": "DataElement",
+              "label": "CauseCategory",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "Whether the adverse event is attributed to a treatment, course of the disease, unrelated to either, or unknown. ",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [
+                  {
+                    "type": "ValueSetConstraint",
+                    "valueset": "http://standardhealthrecord.org/shr/adverse/vs/AttributionCategoryVS",
+                    "bindingStrength": "REQUIRED",
+                    "path": ""
+                  }
+                ],
+                "type": "IdentifiableValue",
+                "label": "shr.core:CodeableConcept",
+                "identifier": {
+                  "label": "CodeableConcept",
+                  "type": "Identifier",
+                  "namespace": "shr.core"
+                }
+              },
+              "children": []
             },
             {
               "type": "DataElement",
@@ -3381,7 +3423,7 @@
               "isEntry": false,
               "isAbstract": false,
               "concepts": [],
-              "description": "The topic or target of an analysis or assessment. For example, if the question involves the progression of the subject's diabetes, then the FocalCondition would be diabetes. If the investigation involves the toxicity of chemotherapy regimen, the focus would be that regimen (currently the MedicationUse of the chemotherapy drug). If the analysis involves certain observations, they would be listed as the focus.",
+              "description": "The topic or target of an analysis or assessment. For example, if the assessment involves the progression of the subject's diabetes, then the AssessmentFocus would be diabetes and the category would be progression. If the investigation involves the toxicity of chemotherapy regimen, the focus would be that regimen and the category would be toxicity.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -5357,8 +5399,9 @@
                     {
                       "type": "TypeConstraint",
                       "isA": {
-                        "_namespace": "shr.behavior",
-                        "_name": "AssessmentTool"
+                        "label": "AssessmentTool",
+                        "type": "Identifier",
+                        "namespace": "shr.behavior"
                       },
                       "onValue": false,
                       "path": ""
@@ -7779,26 +7822,24 @@
                   "namespace": "shr.condition"
                 }
               ],
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [
-                  {
-                    "type": "ValueSetConstraint",
-                    "valueset": "urn:tbd:AcademicProblemVS",
-                    "bindingStrength": "REQUIRED",
-                    "path": ""
-                  }
-                ],
-                "type": "IdentifiableValue",
-                "label": "shr.core:CodeableConcept",
-                "identifier": {
-                  "label": "CodeableConcept",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              },
               "children": [
+                {
+                  "constraints": [
+                    {
+                      "type": "ValueSetConstraint",
+                      "valueset": "urn:tbd:AcademicProblemVS",
+                      "bindingStrength": "REQUIRED",
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:SpecificType",
+                  "identifier": {
+                    "label": "SpecificType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
+                  }
+                },
                 {
                   "min": 0,
                   "max": 0,
@@ -7840,31 +7881,30 @@
                   "namespace": "shr.condition"
                 }
               ],
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [
-                  {
-                    "type": "CodeConstraint",
-                    "code": {
-                      "label": "http://snomed.info/sct:93030006",
-                      "type": "Concept",
-                      "system": "http://snomed.info/sct",
-                      "code": "93030006",
-                      "url": "https://uts.nlm.nih.gov/snomedctBrowser.html?conceptId=93030006"
-                    },
-                    "path": ""
+              "children": [
+                {
+                  "constraints": [
+                    {
+                      "type": "CodeConstraint",
+                      "code": {
+                        "label": "http://snomed.info/sct:93030006",
+                        "type": "Concept",
+                        "system": "http://snomed.info/sct",
+                        "code": "93030006",
+                        "url": "https://uts.nlm.nih.gov/snomedctBrowser.html?conceptId=93030006"
+                      },
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:SpecificType",
+                  "identifier": {
+                    "label": "SpecificType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
                   }
-                ],
-                "type": "IdentifiableValue",
-                "label": "shr.core:CodeableConcept",
-                "identifier": {
-                  "label": "CodeableConcept",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
                 }
-              },
-              "children": []
+              ]
             },
             {
               "type": "DataElement",
@@ -8231,26 +8271,25 @@
                   "namespace": "shr.condition"
                 }
               ],
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [
-                  {
-                    "type": "ValueSetConstraint",
-                    "valueset": "http://standardhealthrecord.org/shr/condition/vs/DSMVS",
-                    "bindingStrength": "REQUIRED",
-                    "path": ""
+              "children": [
+                {
+                  "constraints": [
+                    {
+                      "type": "ValueSetConstraint",
+                      "valueset": "http://standardhealthrecord.org/shr/condition/vs/DSMVS",
+                      "bindingStrength": "REQUIRED",
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:SpecificType",
+                  "identifier": {
+                    "label": "SpecificType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
                   }
-                ],
-                "type": "IdentifiableValue",
-                "label": "shr.core:CodeableConcept",
-                "identifier": {
-                  "label": "CodeableConcept",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
                 }
-              },
-              "children": []
+              ]
             },
             {
               "type": "DataElement",
@@ -8637,21 +8676,11 @@
                 {
                   "min": 0,
                   "max": 1,
-                  "constraints": [
-                    {
-                      "type": "TypeConstraint",
-                      "isA": {
-                        "_namespace": "shr.core",
-                        "_name": "Age"
-                      },
-                      "onValue": true,
-                      "path": ""
-                    }
-                  ],
+                  "constraints": [],
                   "type": "IdentifiableValue",
-                  "label": "shr.core:UpperBound",
+                  "label": "shr.core:UpperAgeBound",
                   "identifier": {
-                    "label": "UpperBound",
+                    "label": "UpperAgeBound",
                     "type": "Identifier",
                     "namespace": "shr.core"
                   }
@@ -8659,21 +8688,11 @@
                 {
                   "min": 0,
                   "max": 1,
-                  "constraints": [
-                    {
-                      "type": "TypeConstraint",
-                      "isA": {
-                        "_namespace": "shr.core",
-                        "_name": "Age"
-                      },
-                      "onValue": true,
-                      "path": ""
-                    }
-                  ],
+                  "constraints": [],
                   "type": "IdentifiableValue",
-                  "label": "shr.core:LowerBound",
+                  "label": "shr.core:LowerAgeBound",
                   "identifier": {
-                    "label": "LowerBound",
+                    "label": "LowerAgeBound",
                     "type": "Identifier",
                     "namespace": "shr.core"
                   }
@@ -11036,6 +11055,32 @@
             },
             {
               "type": "DataElement",
+              "label": "LowerAgeBound",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "The lower limit on an age range",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [],
+                "type": "IdentifiableValue",
+                "label": "shr.core:Age",
+                "identifier": {
+                  "label": "Age",
+                  "type": "Identifier",
+                  "namespace": "shr.core"
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "DataElement",
               "label": "LowerBound",
               "isEntry": false,
               "isAbstract": false,
@@ -12213,8 +12258,9 @@
                     {
                       "type": "TypeConstraint",
                       "isA": {
-                        "_namespace": "shr.core",
-                        "_name": "UnitedStatesState"
+                        "label": "UnitedStatesState",
+                        "type": "Identifier",
+                        "namespace": "shr.core"
                       },
                       "onValue": false,
                       "path": ""
@@ -12298,6 +12344,32 @@
                 "label": "shr.core:Coding",
                 "identifier": {
                   "label": "Coding",
+                  "type": "Identifier",
+                  "namespace": "shr.core"
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "DataElement",
+              "label": "UpperAgeBound",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "The upper limit on an age range",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [],
+                "type": "IdentifiableValue",
+                "label": "shr.core:Age",
+                "identifier": {
+                  "label": "Age",
                   "type": "Identifier",
                   "namespace": "shr.core"
                 }
@@ -14641,6 +14713,39 @@
             },
             {
               "type": "DataElement",
+              "label": "EncounterType",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "The mode of interaction, whether inpatient, outpatient, or telecare.",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [
+                  {
+                    "type": "ValueSetConstraint",
+                    "valueset": "http://hl7.org/fhir/ValueSet/v3-ActEncounterCode",
+                    "bindingStrength": "REQUIRED",
+                    "path": ""
+                  }
+                ],
+                "type": "IdentifiableValue",
+                "label": "shr.core:Coding",
+                "identifier": {
+                  "label": "Coding",
+                  "type": "Identifier",
+                  "namespace": "shr.core"
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "DataElement",
               "label": "EpisodeOfCareCompletion",
               "isEntry": false,
               "isAbstract": false,
@@ -16591,38 +16696,46 @@
                   }
                 },
                 {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "RefValue",
-                  "label": "reference to shr.environment:HouseholdSize",
+                  "constraints": [
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "HouseholdSize",
+                        "type": "Identifier",
+                        "namespace": "shr.environment"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "Coinhabitant",
+                        "type": "Identifier",
+                        "namespace": "shr.environment"
+                      },
+                      "min": 0,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "NumberOfDependents",
+                        "type": "Identifier",
+                        "namespace": "shr.environment"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    }
+                  ],
+                  "type": "Incomplete",
+                  "label": "shr.observation:PanelMembers",
                   "identifier": {
-                    "label": "HouseholdSize",
+                    "label": "PanelMembers",
                     "type": "Identifier",
-                    "namespace": "shr.environment"
-                  }
-                },
-                {
-                  "min": 0,
-                  "constraints": [],
-                  "type": "RefValue",
-                  "label": "reference to shr.environment:Coinhabitant",
-                  "identifier": {
-                    "label": "Coinhabitant",
-                    "type": "Identifier",
-                    "namespace": "shr.environment"
-                  }
-                },
-                {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "RefValue",
-                  "label": "reference to shr.environment:NumberOfDependents",
-                  "identifier": {
-                    "label": "NumberOfDependents",
-                    "type": "Identifier",
-                    "namespace": "shr.environment"
+                    "namespace": "shr.observation"
                   }
                 }
               ]
@@ -17402,10 +17515,12 @@
                     }
                   ],
                   "type": "Incomplete",
-                  "rawPath": [
-                    "Vaccine.VaccineManufacturer",
-                    "Vaccine.LotNumber"
-                  ]
+                  "label": "shr.immunization:Vaccine",
+                  "identifier": {
+                    "label": "Vaccine",
+                    "type": "Identifier",
+                    "namespace": "shr.immunization"
+                  }
                 },
                 {
                   "constraints": [
@@ -18074,8 +18189,9 @@
                     {
                       "type": "TypeConstraint",
                       "isA": {
-                        "_namespace": "shr.lab",
-                        "_name": "TestMethod"
+                        "label": "TestMethod",
+                        "type": "Identifier",
+                        "namespace": "shr.lab"
                       },
                       "onValue": false,
                       "path": ""
@@ -18740,69 +18856,68 @@
                   }
                 },
                 {
-                  "min": 1,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.lifehistory:MilitaryStatus",
+                  "constraints": [
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "MilitaryStatus",
+                        "type": "Identifier",
+                        "namespace": "shr.lifehistory"
+                      },
+                      "min": 1,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "MilitaryServiceDischargeStatus",
+                        "type": "Identifier",
+                        "namespace": "shr.lifehistory"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "MilitaryBranch",
+                        "type": "Identifier",
+                        "namespace": "shr.lifehistory"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "MilitaryServiceEra",
+                        "type": "Identifier",
+                        "namespace": "shr.lifehistory"
+                      },
+                      "min": 0,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "ServiceConnectedDisability",
+                        "type": "Identifier",
+                        "namespace": "shr.lifehistory"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    }
+                  ],
+                  "type": "Incomplete",
+                  "label": "shr.observation:PanelMembers",
                   "identifier": {
-                    "label": "MilitaryStatus",
+                    "label": "PanelMembers",
                     "type": "Identifier",
-                    "namespace": "shr.lifehistory"
-                  }
-                },
-                {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "TBD",
-                  "text": "MilitaryRank"
-                },
-                {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.lifehistory:MilitaryServiceDischargeStatus",
-                  "identifier": {
-                    "label": "MilitaryServiceDischargeStatus",
-                    "type": "Identifier",
-                    "namespace": "shr.lifehistory"
-                  }
-                },
-                {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.lifehistory:MilitaryBranch",
-                  "identifier": {
-                    "label": "MilitaryBranch",
-                    "type": "Identifier",
-                    "namespace": "shr.lifehistory"
-                  }
-                },
-                {
-                  "min": 0,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.lifehistory:MilitaryServiceEra",
-                  "identifier": {
-                    "label": "MilitaryServiceEra",
-                    "type": "Identifier",
-                    "namespace": "shr.lifehistory"
-                  }
-                },
-                {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.lifehistory:ServiceConnectedDisability",
-                  "identifier": {
-                    "label": "ServiceConnectedDisability",
-                    "type": "Identifier",
-                    "namespace": "shr.lifehistory"
+                    "namespace": "shr.observation"
                   }
                 }
               ]
@@ -19058,8 +19173,9 @@
                     {
                       "type": "TypeConstraint",
                       "isA": {
-                        "_namespace": "shr.core",
-                        "_name": "GestationalTemporalContext"
+                        "label": "GestationalTemporalContext",
+                        "type": "Identifier",
+                        "namespace": "shr.core"
                       },
                       "onValue": true,
                       "path": ""
@@ -19514,8 +19630,13 @@
                     "min": 1,
                     "max": 1,
                     "constraints": [],
-                    "type": "TBD",
-                    "text": "Range"
+                    "type": "IdentifiableValue",
+                    "label": "shr.core:Range",
+                    "identifier": {
+                      "label": "Range",
+                      "type": "Identifier",
+                      "namespace": "shr.core"
+                    }
                   }
                 ]
               },
@@ -20407,9 +20528,12 @@
                     }
                   ],
                   "type": "Incomplete",
-                  "rawPath": [
-                    "NonOccurrenceModifier.Reason"
-                  ]
+                  "label": "shr.base:NonOccurrenceModifier",
+                  "identifier": {
+                    "label": "NonOccurrenceModifier",
+                    "type": "Identifier",
+                    "namespace": "shr.base"
+                  }
                 },
                 {
                   "constraints": [
@@ -21387,9 +21511,12 @@
                     }
                   ],
                   "type": "Incomplete",
-                  "rawPath": [
-                    "NonOccurrenceModifier.Reason"
-                  ]
+                  "label": "shr.base:NonOccurrenceModifier",
+                  "identifier": {
+                    "label": "NonOccurrenceModifier",
+                    "type": "Identifier",
+                    "namespace": "shr.base"
+                  }
                 },
                 {
                   "min": 0,
@@ -21495,6 +21622,51 @@
                     "label": "PanelMembers",
                     "type": "Identifier",
                     "namespace": "shr.observation"
+                  }
+                },
+                {
+                  "min": 0,
+                  "max": 1,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.observation:ClinicallyRelevantTime",
+                  "identifier": {
+                    "label": "ClinicallyRelevantTime",
+                    "type": "Identifier",
+                    "namespace": "shr.observation"
+                  }
+                },
+                {
+                  "min": 0,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.actor:Participant",
+                  "identifier": {
+                    "label": "Participant",
+                    "type": "Identifier",
+                    "namespace": "shr.actor"
+                  }
+                },
+                {
+                  "min": 0,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:Setting",
+                  "identifier": {
+                    "label": "Setting",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
+                  }
+                },
+                {
+                  "min": 0,
+                  "constraints": [],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:Location",
+                  "identifier": {
+                    "label": "Location",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
                   }
                 }
               ]
@@ -21779,8 +21951,8 @@
               "value": {
                 "min": 0,
                 "constraints": [],
-                "type": "IdentifiableValue",
-                "label": "shr.observation:Observation",
+                "type": "RefValue",
+                "label": "reference to shr.observation:Observation",
                 "identifier": {
                   "label": "Observation",
                   "type": "Identifier",
@@ -21815,6 +21987,65 @@
                 "constraints": [],
                 "type": "TBD",
                 "text": "Range"
+              },
+              "children": []
+            },
+            {
+              "type": "DataElement",
+              "label": "ReportStatus",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "The status of the report associated with this panel.",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [
+                  {
+                    "type": "ValueSetConstraint",
+                    "valueset": "http://hl7.org/fhir/ValueSet/diagnostic-report-status",
+                    "bindingStrength": "REQUIRED",
+                    "path": ""
+                  }
+                ],
+                "type": "IdentifiableValue",
+                "label": "primitive:code",
+                "identifier": {
+                  "label": "code",
+                  "type": "Identifier",
+                  "namespace": "primitive"
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "DataElement",
+              "label": "ServiceCategory",
+              "isEntry": false,
+              "isAbstract": false,
+              "concepts": [],
+              "description": "A code that classifies the clinical discipline, department or diagnostic service that created the report (e.g. cardiology, biochemistry, hematology, MRI). This is used for searching, sorting and display purposes.",
+              "grammarVersion": {
+                "major": 5,
+                "minor": 0,
+                "patch": 0
+              },
+              "value": {
+                "min": 1,
+                "max": 1,
+                "constraints": [],
+                "type": "IdentifiableValue",
+                "label": "shr.core:CodeableConcept",
+                "identifier": {
+                  "label": "CodeableConcept",
+                  "type": "Identifier",
+                  "namespace": "shr.core"
+                }
               },
               "children": []
             },
@@ -22055,26 +22286,24 @@
                   "namespace": "shr.condition"
                 }
               ],
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [
-                  {
-                    "type": "ValueSetConstraint",
-                    "valueset": "http://standardhealthrecord.org/shr/oncology/vs/BreastCancerTypeVS",
-                    "bindingStrength": "REQUIRED",
-                    "path": ""
-                  }
-                ],
-                "type": "IdentifiableValue",
-                "label": "shr.core:CodeableConcept",
-                "identifier": {
-                  "label": "CodeableConcept",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              },
               "children": [
+                {
+                  "constraints": [
+                    {
+                      "type": "ValueSetConstraint",
+                      "valueset": "http://standardhealthrecord.org/shr/oncology/vs/BreastCancerTypeVS",
+                      "bindingStrength": "REQUIRED",
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:SpecificType",
+                  "identifier": {
+                    "label": "SpecificType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
+                  }
+                },
                 {
                   "constraints": [
                     {
@@ -22123,8 +22352,9 @@
                     {
                       "type": "TypeConstraint",
                       "isA": {
-                        "_namespace": "shr.oncology",
-                        "_name": "PrimaryTumorSite"
+                        "label": "PrimaryTumorSite",
+                        "type": "Identifier",
+                        "namespace": "shr.oncology"
                       },
                       "onValue": false,
                       "path": ""
@@ -22161,27 +22391,36 @@
               ],
               "children": [
                 {
-                  "min": 1,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.oncology:BRCA1Variant",
+                  "constraints": [
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "BRCA1Variant",
+                        "type": "Identifier",
+                        "namespace": "shr.oncology"
+                      },
+                      "min": 1,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "BRCA2Variant",
+                        "type": "Identifier",
+                        "namespace": "shr.oncology"
+                      },
+                      "min": 1,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    }
+                  ],
+                  "type": "Incomplete",
+                  "label": "shr.observation:PanelMembers",
                   "identifier": {
-                    "label": "BRCA1Variant",
+                    "label": "PanelMembers",
                     "type": "Identifier",
-                    "namespace": "shr.oncology"
-                  }
-                },
-                {
-                  "min": 1,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "IdentifiableValue",
-                  "label": "shr.oncology:BRCA2Variant",
-                  "identifier": {
-                    "label": "BRCA2Variant",
-                    "type": "Identifier",
-                    "namespace": "shr.oncology"
+                    "namespace": "shr.observation"
                   }
                 }
               ]
@@ -24233,11 +24472,11 @@
             },
             {
               "type": "DataElement",
-              "label": "ToxicReaction",
+              "label": "ToxicReactionToTreatment",
               "isEntry": true,
               "isAbstract": false,
               "concepts": [],
-              "description": "An adverse reaction to medication, radiation treatment, or other therapy, that causes grade 3 or 4 adverse reaction.",
+              "description": "A grade 3 or 4 adverse reaction to medication, radiation treatment, or other therapy.",
               "grammarVersion": {
                 "major": 5,
                 "minor": 0,
@@ -24252,20 +24491,41 @@
               ],
               "children": [
                 {
-                  "min": 1,
-                  "max": 1,
                   "constraints": [
+                    {
+                      "type": "CardConstraint",
+                      "min": 1,
+                      "max": 1,
+                      "path": "shr.adverse.AdverseEventGrade"
+                    },
                     {
                       "type": "ValueSetConstraint",
                       "valueset": "http://standardhealthrecord.org/shr/oncology/vs/ToxicReactionVS",
                       "bindingStrength": "REQUIRED",
-                      "path": ""
+                      "path": "shr.adverse.AdverseEventGrade"
+                    },
+                    {
+                      "type": "CardConstraint",
+                      "min": 1,
+                      "max": 1,
+                      "path": "shr.adverse.CauseCategory"
+                    },
+                    {
+                      "type": "CodeConstraint",
+                      "code": {
+                        "label": "null:treatment",
+                        "type": "Concept",
+                        "system": null,
+                        "code": "treatment",
+                        "url": ""
+                      },
+                      "path": "shr.adverse.CauseCategory"
                     }
                   ],
-                  "type": "IdentifiableValue",
-                  "label": "shr.adverse:AdverseEventGrade",
+                  "type": "Incomplete",
+                  "label": "shr.adverse:AdverseEvent",
                   "identifier": {
-                    "label": "AdverseEventGrade",
+                    "label": "AdverseEvent",
                     "type": "Identifier",
                     "namespace": "shr.adverse"
                   }
@@ -25637,27 +25897,36 @@
                   }
                 },
                 {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "RefValue",
-                  "label": "reference to shr.sex:GenderIdentity",
+                  "constraints": [
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "GenderIdentity",
+                        "type": "Identifier",
+                        "namespace": "shr.sex"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    },
+                    {
+                      "type": "IncludesTypeConstraint",
+                      "isA": {
+                        "label": "SexualOrientation",
+                        "type": "Identifier",
+                        "namespace": "shr.sex"
+                      },
+                      "min": 0,
+                      "max": 1,
+                      "path": "shr.observation.Observation"
+                    }
+                  ],
+                  "type": "Incomplete",
+                  "label": "shr.observation:PanelMembers",
                   "identifier": {
-                    "label": "GenderIdentity",
+                    "label": "PanelMembers",
                     "type": "Identifier",
-                    "namespace": "shr.sex"
-                  }
-                },
-                {
-                  "min": 0,
-                  "max": 1,
-                  "constraints": [],
-                  "type": "RefValue",
-                  "label": "reference to shr.sex:SexualOrientation",
-                  "identifier": {
-                    "label": "SexualOrientation",
-                    "type": "Identifier",
-                    "namespace": "shr.sex"
+                    "namespace": "shr.observation"
                   }
                 }
               ]
@@ -25841,31 +26110,29 @@
                   "namespace": "shr.condition"
                 }
               ],
-              "value": {
-                "min": 1,
-                "max": 1,
-                "constraints": [
-                  {
-                    "type": "CodeConstraint",
-                    "code": {
-                      "label": "urn:tbd:TBD",
-                      "type": "Concept",
-                      "system": "urn:tbd",
-                      "code": "TBD",
-                      "url": ""
-                    },
-                    "path": ""
-                  }
-                ],
-                "type": "IdentifiableValue",
-                "label": "shr.core:CodeableConcept",
-                "identifier": {
-                  "label": "CodeableConcept",
-                  "type": "Identifier",
-                  "namespace": "shr.core"
-                }
-              },
               "children": [
+                {
+                  "constraints": [
+                    {
+                      "type": "CodeConstraint",
+                      "code": {
+                        "label": "urn:tbd:TBD",
+                        "type": "Concept",
+                        "system": "urn:tbd",
+                        "code": "TBD",
+                        "url": ""
+                      },
+                      "path": ""
+                    }
+                  ],
+                  "type": "IdentifiableValue",
+                  "label": "shr.core:SpecificType",
+                  "identifier": {
+                    "label": "SpecificType",
+                    "type": "Identifier",
+                    "namespace": "shr.core"
+                  }
+                },
                 {
                   "min": 0,
                   "constraints": [
@@ -25890,8 +26157,9 @@
                     {
                       "type": "TypeConstraint",
                       "isA": {
-                        "_namespace": "shr.skin",
-                        "_name": "PressureUlcerManifestation"
+                        "label": "PressureUlcerManifestation",
+                        "type": "Identifier",
+                        "namespace": "shr.skin"
                       },
                       "onValue": false,
                       "path": ""
@@ -26297,8 +26565,9 @@
                   {
                     "type": "TypeConstraint",
                     "isA": {
-                      "_namespace": "shr.skin",
-                      "_name": "SupportSurface"
+                      "label": "SupportSurface",
+                      "type": "Identifier",
+                      "namespace": "shr.skin"
                     },
                     "onValue": false,
                     "path": ""
@@ -28313,6 +28582,76 @@
                 "code": "C1559081",
                 "system": "http://ncimeta.nci.nih.gov",
                 "url": "https://uts.nlm.nih.gov/metathesaurus.html#C1559081;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
+              },
+              "type": "ValueSetIncludesCodeRule"
+            }
+          ]
+        },
+        {
+          "label": "AttributionCategoryVS",
+          "namespace": "shr.adverse",
+          "description": "Whether the adverse event is attributed to a treatment, course of the disease, medical error, unrelated to either, or unknown. ",
+          "type": "ValueSet",
+          "url": "http://standardhealthrecord.org/shr/adverse/vs/AttributionCategoryVS",
+          "concepts": [],
+          "grammarVersion": {
+            "major": 5,
+            "minor": 0,
+            "patch": 0
+          },
+          "children": [
+            {
+              "label": "Adverse event is attributed to a treatment.",
+              "code": {
+                "label": "Adverse event is attributed to a treatment.",
+                "type": "code",
+                "code": "treatment",
+                "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+                "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+              },
+              "type": "ValueSetIncludesCodeRule"
+            },
+            {
+              "label": "Adverse event is attributed to the course of the disease",
+              "code": {
+                "label": "Adverse event is attributed to the course of the disease",
+                "type": "code",
+                "code": "disease",
+                "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+                "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+              },
+              "type": "ValueSetIncludesCodeRule"
+            },
+            {
+              "label": "Adverse event is attributed to a medical error",
+              "code": {
+                "label": "Adverse event is attributed to a medical error",
+                "type": "code",
+                "code": "error",
+                "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+                "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+              },
+              "type": "ValueSetIncludesCodeRule"
+            },
+            {
+              "label": "Adverse event is attributed to an cause unrelated to the treatment, disease, or medical error.",
+              "code": {
+                "label": "Adverse event is attributed to an cause unrelated to the treatment, disease, or medical error.",
+                "type": "code",
+                "code": "unrelated",
+                "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+                "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+              },
+              "type": "ValueSetIncludesCodeRule"
+            },
+            {
+              "label": "The causal category of the adverse event is unknown",
+              "code": {
+                "label": "The causal category of the adverse event is unknown",
+                "type": "code",
+                "code": "unknown",
+                "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+                "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
               },
               "type": "ValueSetIncludesCodeRule"
             }
@@ -32567,86 +32906,6 @@
           ]
         },
         {
-          "label": "EncounterTypeVS",
-          "namespace": "shr.encounter",
-          "type": "ValueSet",
-          "url": "http://standardhealthrecord.org/shr/encounter/vs/EncounterTypeVS",
-          "concepts": [],
-          "grammarVersion": {
-            "major": 5,
-            "minor": 0,
-            "patch": 0
-          },
-          "children": [
-            {
-              "label": "In-facility or hospital setting encounter",
-              "code": {
-                "label": "In-facility or hospital setting encounter",
-                "type": "code",
-                "code": "inpatient",
-                "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-                "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Ambulatory encounter in office or facility setting",
-              "code": {
-                "label": "Ambulatory encounter in office or facility setting",
-                "type": "code",
-                "code": "ambulatory",
-                "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-                "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Encounter in patient's home or location of residence",
-              "code": {
-                "label": "Encounter in patient's home or location of residence",
-                "type": "code",
-                "code": "home_visit",
-                "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-                "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Non-face to face contact via synchronous audio and video connection",
-              "code": {
-                "label": "Non-face to face contact via synchronous audio and video connection",
-                "type": "code",
-                "code": "tele_video",
-                "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-                "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Non-face to face contact via telephone or audio-only connection",
-              "code": {
-                "label": "Non-face to face contact via telephone or audio-only connection",
-                "type": "code",
-                "code": "tele_audio",
-                "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-                "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Non-face to face contact via text messaging or similar non-simultaneous mode",
-              "code": {
-                "label": "Non-face to face contact via text messaging or similar non-simultaneous mode",
-                "type": "code",
-                "code": "tele_asynch",
-                "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-                "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            }
-          ]
-        },
-        {
           "label": "ReferralSourceTypeVS",
           "namespace": "shr.encounter",
           "type": "ValueSet",
@@ -33882,130 +34141,6 @@
                 "code": "PATOBJ",
                 "system": "http://hl7.org/fhir/v3/ActReason",
                 "url": "http://hl7.org/fhir/v3/ActReason#definition"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            }
-          ]
-        },
-        {
-          "label": "TestInterpretationVS",
-          "namespace": "shr.lab",
-          "type": "ValueSet",
-          "url": "http://standardhealthrecord.org/shr/lab/vs/TestInterpretationVS",
-          "concepts": [],
-          "grammarVersion": {
-            "major": 5,
-            "minor": 0,
-            "patch": 0
-          },
-          "children": [
-            {
-              "label": "Normal",
-              "code": {
-                "label": "Normal",
-                "type": "code",
-                "code": "C0205307",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0205307;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Abnormal",
-              "code": {
-                "label": "Abnormal",
-                "type": "code",
-                "code": "C0205161",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0205161;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Very abnormal",
-              "code": {
-                "label": "Very abnormal",
-                "type": "code",
-                "code": "C1548135",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C1548135;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Emergency abnormal",
-              "code": {
-                "label": "Emergency abnormal",
-                "type": "code",
-                "code": "TBD",
-                "system": "urn:tbd",
-                "url": ""
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Emergency low",
-              "code": {
-                "label": "Emergency low",
-                "type": "code",
-                "code": "TBD",
-                "system": "urn:tbd",
-                "url": ""
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Very low",
-              "code": {
-                "label": "Very low",
-                "type": "code",
-                "code": "C0442811",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0442811;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Low",
-              "code": {
-                "label": "Low",
-                "type": "code",
-                "code": "C1611820",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C1611820;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "High",
-              "code": {
-                "label": "High",
-                "type": "code",
-                "code": "C0205250",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0205250;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Very high",
-              "code": {
-                "label": "Very high",
-                "type": "code",
-                "code": "C0442804",
-                "system": "http://ncimeta.nci.nih.gov",
-                "url": "https://uts.nlm.nih.gov/metathesaurus.html#C0442804;0;1;CUI;2016AB;EXACT_MATCH;CUI;*;"
-              },
-              "type": "ValueSetIncludesCodeRule"
-            },
-            {
-              "label": "Emergency high",
-              "code": {
-                "label": "Emergency high",
-                "type": "code",
-                "code": "TBD",
-                "system": "urn:tbd",
-                "url": ""
               },
               "type": "ValueSetIncludesCodeRule"
             }
@@ -40006,6 +40141,60 @@
           ]
         },
         {
+          "label": "AttributionCategoryCS",
+          "namespace": "shr.adverse",
+          "description": "Whether the adverse event is attributed to a treatment, course of the disease, medical error, unrelated to either, or unknown. ",
+          "type": "CodeSystem",
+          "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+          "grammarVersion": {
+            "major": 5,
+            "minor": 0,
+            "patch": 0
+          },
+          "children": [
+            {
+              "label": "Adverse event is attributed to a treatment. (http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS:treatment)",
+              "type": "Concept",
+              "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+              "code": "treatment",
+              "display": "Adverse event is attributed to a treatment.",
+              "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+            },
+            {
+              "label": "Adverse event is attributed to the course of the disease (http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS:disease)",
+              "type": "Concept",
+              "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+              "code": "disease",
+              "display": "Adverse event is attributed to the course of the disease",
+              "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+            },
+            {
+              "label": "Adverse event is attributed to a medical error (http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS:error)",
+              "type": "Concept",
+              "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+              "code": "error",
+              "display": "Adverse event is attributed to a medical error",
+              "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+            },
+            {
+              "label": "Adverse event is attributed to an cause unrelated to the treatment, disease, or medical error. (http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS:unrelated)",
+              "type": "Concept",
+              "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+              "code": "unrelated",
+              "display": "Adverse event is attributed to an cause unrelated to the treatment, disease, or medical error.",
+              "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+            },
+            {
+              "label": "The causal category of the adverse event is unknown (http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS:unknown)",
+              "type": "Concept",
+              "system": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS",
+              "code": "unknown",
+              "display": "The causal category of the adverse event is unknown",
+              "url": "http://standardhealthrecord.org/shr/adverse/cs/AttributionCategoryCS"
+            }
+          ]
+        },
+        {
           "label": "EvidenceQualityCS",
           "namespace": "shr.assessment",
           "type": "CodeSystem",
@@ -42358,67 +42547,6 @@
               "code": "death",
               "display": "Client died.",
               "url": "http://standardhealthrecord.org/shr/encounter/cs/EpisodeOfCareCompletionCS"
-            }
-          ]
-        },
-        {
-          "label": "EncounterTypeCS",
-          "namespace": "shr.encounter",
-          "type": "CodeSystem",
-          "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-          "grammarVersion": {
-            "major": 5,
-            "minor": 0,
-            "patch": 0
-          },
-          "children": [
-            {
-              "label": "In-facility or hospital setting encounter (http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS:inpatient)",
-              "type": "Concept",
-              "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-              "code": "inpatient",
-              "display": "In-facility or hospital setting encounter",
-              "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-            },
-            {
-              "label": "Ambulatory encounter in office or facility setting (http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS:ambulatory)",
-              "type": "Concept",
-              "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-              "code": "ambulatory",
-              "display": "Ambulatory encounter in office or facility setting",
-              "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-            },
-            {
-              "label": "Encounter in patient's home or location of residence (http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS:home_visit)",
-              "type": "Concept",
-              "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-              "code": "home_visit",
-              "display": "Encounter in patient's home or location of residence",
-              "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-            },
-            {
-              "label": "Non-face to face contact via synchronous audio and video connection (http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS:tele_video)",
-              "type": "Concept",
-              "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-              "code": "tele_video",
-              "display": "Non-face to face contact via synchronous audio and video connection",
-              "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-            },
-            {
-              "label": "Non-face to face contact via telephone or audio-only connection (http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS:tele_audio)",
-              "type": "Concept",
-              "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-              "code": "tele_audio",
-              "display": "Non-face to face contact via telephone or audio-only connection",
-              "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
-            },
-            {
-              "label": "Non-face to face contact via text messaging or similar non-simultaneous mode (http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS:tele_asynch)",
-              "type": "Concept",
-              "system": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS",
-              "code": "tele_asynch",
-              "display": "Non-face to face contact via text messaging or similar non-simultaneous mode",
-              "url": "http://standardhealthrecord.org/shr/encounter/cs/EncounterTypeCS"
             }
           ]
         },
